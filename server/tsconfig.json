@@ -1,0 +1,33 @@
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2022", // Or a newer ECMAScript version (e.g., ES2023, ESNext)
+    "module": "Node16", // Crucial for ESM in Node.js
+    "moduleResolution": "Node16", // Crucial for ESM in Node.js
+    "esModuleInterop": true, // Allows default imports from CommonJS modules
+    "forceConsistentCasingInFileNames": true,
+    "strict": true, // Enable all strict type-checking options
+    "skipLibCheck": true, // Skip type checking of declaration files
+    "outDir": "./dist", // Output directory for compiled JavaScript
+    "rootDir": "./src", // Root directory for your TypeScript source files
+    "allowJs": true, // Allow JavaScript files to be compiled
+    "declaration": true, // Generate declaration files (.d.ts)
+    "sourceMap": true, // Generate source maps
+    "baseUrl": "./src",
+    "paths": {
+      "@utils/*": [
+        "utils/*"
+      ],
+      "@components/*": [
+        "components/*"
+      ]
+    }
+  },
+  "include": [
+    "src/**/*.ts"
+  ], // What files to include for compilation
+  "exclude": [
+    "node_modules",
+    "dist"
+  ] // What files to exclude
+}
