@@ -1,4 +1,3 @@
-// src/index.ts
-import { greeting } from "./utils.js"; // Notice the .js extension for relative imports
+import { startStaticServerWithSocket } from "./main-static-server.js";
 
-console.log(greeting("World"));
+startStaticServerWithSocket();

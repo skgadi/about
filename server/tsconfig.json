@@ -14,14 +14,6 @@
     "declaration": true, // Generate declaration files (.d.ts)
     "sourceMap": true, // Generate source maps
     "baseUrl": "./src",
-    "paths": {
-      "@utils/*": [
-        "utils/*"
-      ],
-      "@components/*": [
-        "components/*"
-      ]
-    }
   },
   "include": [
     "src/**/*.ts"

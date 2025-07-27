@@ -4,18 +4,28 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "nodemon src/index.ts" 
+    "start": "node ./dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "build": "tsc"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Suresh Kumar Gadi",
+  "license": "MIT",
   "description": "",
   "devDependencies": {
+    "@types/express": "^5.0.3",
     "@types/node": "^24.1.0",
+    "@types/socket.io": "^3.0.2",
+    "@types/axios": "^0.14.4",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "axios": "^1.11.0",
+    "express": "^5.1.0",
+    "socket.io": "^4.8.1"
   }
 }
