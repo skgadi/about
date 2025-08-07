@@ -1,5 +1,5 @@
 import getAllSettings from "db/settings.js";
-import { GSK_APP_SETTINGS_TRANSFER } from "services/library/types/client-server-data-transfer.js";
+import { GSK_APP_VAR_SETTINGS_TRANSFER } from "services/library/types/client-server-data-transfer.js";
 import { logIfVerbose } from "services/utils/logging.js";
 
 let io: any;
@@ -20,14 +20,15 @@ export const leaveSettingsRoom = (socket: any) => {
 
 export const emitSettings = (socket: any) => {
   const allSettings = getAllSettings();
-  const payload: GSK_APP_SETTINGS_TRANSFER = {
-    id: "GSK_APP_SETTINGS_TRANSFER",
+
+  const payload: GSK_APP_VAR_SETTINGS_TRANSFER = {
+    id: "GSK_APP_VAR_SETTINGS_TRANSFER",
     payload: allSettings,
   };
   if (socket) {
-    socket.emit("settingsUpdate", payload);
+    socket.emit("GSK_APP_VAR_SETTINGS_TRANSFER", payload);
   } else if (io) {
-    io.to("settings").emit("settingsUpdate", payload);
+    io.to("settings").emit("GSK_APP_VAR_SETTINGS_TRANSFER", payload);
   } else {
     console.error("Socket.io instance is not initialized.");
   }

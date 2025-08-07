@@ -1,14 +1,14 @@
+import type {
+  GSK_STRUCTURES_CONSTANT_SETTINGS,
+  GSK_STRUCTURES_VARIABLE_SETTINGS,
+} from "./structures/settings.js";
+
 export interface GSK_APP_CONST_SETTINGS_TRANSFER {
   id: "GSK_APP_CONST_SETTINGS_TRANSFER";
-  payload: {
-    appName: string;
-    appVersion: string;
-  };
+  payload: GSK_STRUCTURES_CONSTANT_SETTINGS;
 }
 
-export interface GSK_APP_SETTINGS_TRANSFER {
-  id: "GSK_APP_SETTINGS_TRANSFER";
-  payload: {
-    [key: string]: string | number | boolean | object | null;
-  };
+export interface GSK_APP_VAR_SETTINGS_TRANSFER {
+  id: "GSK_APP_VAR_SETTINGS_TRANSFER";
+  payload: GSK_STRUCTURES_VARIABLE_SETTINGS;
 }

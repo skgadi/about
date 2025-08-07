@@ -1,12 +1,22 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
+import {
+  GSK_APP_GLOBAL_CONSTANT_DEFAULT_NAME,
+  GSK_APP_GLOBAL_CONSTANT_VERSION,
+} from 'src/services/library/constants/app-init';
+import type {
+  GSK_STRUCTURES_CONSTANT_SETTINGS,
+  GSK_STRUCTURES_VARIABLE_SETTINGS,
+} from 'src/services/library/types/structures/settings';
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
     constants: {
-      appName: '--- Your App Name ---', // Default app name
-      appVersion: '0.0.0', // Default app version
+      appName: GSK_APP_GLOBAL_CONSTANT_DEFAULT_NAME,
+      appVersion: GSK_APP_GLOBAL_CONSTANT_VERSION,
     },
-    variables: {},
+    variables: {
+      appLogo: '',
+    } as GSK_STRUCTURES_VARIABLE_SETTINGS,
     socketServerUrl: 'localhost:3333', // Default socket server URL
   }),
 
@@ -16,11 +26,11 @@ export const useSettingsStore = defineStore('settings', {
     setSocketServerUrl(url: string) {
       this.socketServerUrl = url;
     },
-    setAppName(name: string) {
-      this.constants.appName = name;
+    setVariableSettings(settings: GSK_STRUCTURES_VARIABLE_SETTINGS) {
+      this.variables = settings;
     },
-    setAppVersion(version: string) {
-      this.constants.appVersion = version;
+    setConstantsSettings(settings: GSK_STRUCTURES_CONSTANT_SETTINGS) {
+      this.constants = settings;
     },
   },
 });
