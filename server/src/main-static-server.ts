@@ -1,13 +1,14 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import http from "http";
-
 import path from "path"; // <-- Import the path module
-import { fileURLToPath } from "url"; // <-- Import fileURLToPath for ES Modules
 
-import dotenv from "dotenv";
 import { prepareSocketServer } from "./main-socket.js";
 import { GSK_APP_GLOBAL_CONSTANT_PORT } from "./services/library/constants/app-init.js";
-dotenv.config();
+import NodeSpecificUtils from "./services/utils/node-specific.js";
+import { logIfVerbose } from "./services/utils/logging.js";
 
 /**
  * This function starts the static server with Socket.IO support.
@@ -19,11 +20,11 @@ export const startStaticServerWithSocket = () => {
   const server = http.createServer(app);
 
   // Use fileURLToPath to get the current file's directory
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-
-  // Serve static files from the "public" directory
-  app.use(express.static(path.join(__dirname, "..", "public")));
+  const clientDirectory = path.join(
+    NodeSpecificUtils.getProjectRoot(),
+    "public"
+  );
+  app.use(express.static(clientDirectory));
 
   app.get("/api/config", (req, res) => {
     // Determine the Socket.IO server URL dynamically.
@@ -43,7 +44,7 @@ export const startStaticServerWithSocket = () => {
     const socketServerUrl = `//${req.headers.host}`;
 
     // Log for debugging
-    console.log(
+    logIfVerbose(
       `Frontend is requesting config. Detected Socket.IO URL: ${socketServerUrl}`
     );
 
@@ -68,7 +69,7 @@ export const startStaticServerWithSocket = () => {
   // Start the server on a specified port
 
   server.listen(GSK_APP_GLOBAL_CONSTANT_PORT, () => {
-    console.log(`Server running on port ${GSK_APP_GLOBAL_CONSTANT_PORT}`);
+    logIfVerbose(`Server running on port ${GSK_APP_GLOBAL_CONSTANT_PORT}`);
   });
-  console.log("Server file is running ...");
+  logIfVerbose("Server file is running ...");
 };

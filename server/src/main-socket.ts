@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import http from "http";
 import { socketRoutines } from "./socket/routines/index.js";
 import { initializeSocketRooms } from "./socket/rooms/index.js";
+import { logIfVerbose } from "./services/utils/logging.js";
 
 export const prepareSocketServer = (
   server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
@@ -18,14 +19,14 @@ export const prepareSocketServer = (
   initializeSocketRooms(io);
 
   io.on("connection", (socket) => {
-    console.log("A user connected");
+    logIfVerbose("A user connected");
 
     // Handle socket routines
     socketRoutines(io, socket);
 
     // Handle disconnection
     socket.on("disconnect", () => {
-      console.log("User disconnected");
+      logIfVerbose("User disconnected");
     });
   });
 };

@@ -2,9 +2,12 @@ import { defineStore, acceptHMRUpdate } from 'pinia';
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
+    constants: {
+      appName: '--- Your App Name ---', // Default app name
+      appVersion: '0.0.0', // Default app version
+    },
+    variables: {},
     socketServerUrl: 'localhost:3333', // Default socket server URL
-    appName: '--- Your App Name ---', // Default app name
-    appVersion: '0.0.0', // Default app version
   }),
 
   getters: {},
@@ -14,10 +17,10 @@ export const useSettingsStore = defineStore('settings', {
       this.socketServerUrl = url;
     },
     setAppName(name: string) {
-      this.appName = name;
+      this.constants.appName = name;
     },
     setAppVersion(version: string) {
-      this.appVersion = version;
+      this.constants.appVersion = version;
     },
   },
 });

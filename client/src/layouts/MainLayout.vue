@@ -4,7 +4,7 @@
       <q-toolbar>
         <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
 
-        <q-toolbar-title> {{ settingsStore.appName }} </q-toolbar-title>
+        <q-toolbar-title> {{ settingsStore.constants.appName }} </q-toolbar-title>
 
         <div>Hi</div>
       </q-toolbar>
