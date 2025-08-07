@@ -6,7 +6,7 @@
 
         <q-toolbar-title> {{ settingsStore.constants.appName }} </q-toolbar-title>
 
-        <div>Hi</div>
+        <connectivity-indicator />
       </q-toolbar>
     </q-header>
 
@@ -24,8 +24,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
 import UpdateRibbon from 'components/Generic/UpdateRibbon.vue';
+import ConnectivityIndicator from 'src/components/Generic/ConnectivityIndicator.vue';
+
+import { onMounted, ref } from 'vue';
 import { useSettingsStore } from 'src/stores/settings-store';
 import { useSocketStore } from 'src/stores/socket-store';
 
