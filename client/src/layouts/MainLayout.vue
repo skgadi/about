@@ -10,14 +10,37 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+    <q-drawer
+      v-model="leftDrawerOpen"
+      :width="drawerWidth"
+      :style="drawerStyle"
+      show-if-above
+      bordered
+    >
+      <!--Drawer content starts here-->
       <q-list>
-        <q-item-label header> Essential Links </q-item-label>
+        <q-item to="/" exact clickable>
+          <q-item-section avatar>
+            <q-icon name="home" />
+          </q-item-section>
+          <q-item-section> Home </q-item-section>
+        </q-item>
+
+        <q-item to="/about" exact clickable>
+          <q-item-section avatar>
+            <q-icon name="info" />
+          </q-item-section>
+          <q-item-section> About </q-item-section>
+        </q-item>
       </q-list>
+      <!--Drawer content ends here-->
+      <!-- Resize handle -->
+      <div class="resize-handle" @mousedown="startResize" />
     </q-drawer>
 
     <q-page-container>
-      <UpdateRibbon ref="updateRibbon" />
+      <update-ribbon ref="updateRibbon" />
+      <cookies-consent />
       <router-view />
     </q-page-container>
   </q-layout>
@@ -26,10 +49,12 @@
 <script setup lang="ts">
 import UpdateRibbon from 'components/Generic/UpdateRibbon.vue';
 import ConnectivityIndicator from 'src/components/Generic/ConnectivityIndicator.vue';
+import CookiesConsent from 'src/components/Generic/CookiesConsent.vue';
 
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useSettingsStore } from 'src/stores/settings-store';
 import { useSocketStore } from 'src/stores/socket-store';
+import { Cookies } from 'quasar';
 
 const settingsStore = useSettingsStore();
 const socketStore = useSocketStore();
@@ -37,11 +62,90 @@ const socketStore = useSocketStore();
 onMounted(async () => {
   //console.log('DesktopLayout mounted');
   await socketStore.initializeSocket();
+  document.title = settingsStore.constants.appName;
 });
 
-const leftDrawerOpen = ref(false);
+// ---- DRAWER -----
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 }
+
+// --- Resize logic ---
+let isResizing = false;
+let resizeStartX = 0;
+let initialWidth = 0;
+
+const startResize = (e: MouseEvent) => {
+  isResizing = true;
+  resizeStartX = e.clientX;
+  initialWidth = drawerWidth.value;
+
+  document.addEventListener('mousemove', onResize);
+  document.addEventListener('mouseup', stopResizeAndDrag);
+};
+
+const onResize = (e: MouseEvent) => {
+  if (!isResizing) return;
+  const delta = e.clientX - resizeStartX;
+  drawerWidth.value = Math.max(200, Math.min(initialWidth + delta, 600));
+};
+
+const leftDrawerOpen = ref(true);
+const getInitialDrawerWidth = () => {
+  try {
+    return parseInt(Cookies.get('MAIN_APP_DRAWER_WIDTH') || '250', 10);
+  } catch (error) {
+    console.error('Error getting initial drawer width:', error);
+    return 250;
+  }
+};
+const drawerWidth = ref(getInitialDrawerWidth());
+
+// --- Drag logic ---
+let isDragging = false;
+const dragStartX = 0;
+
+const onDrag = (e: MouseEvent) => {
+  if (!isDragging) return;
+  const dx = e.clientX - dragStartX;
+  drawerStyle.value.transform = `translateX(${dx}px)`;
+};
+
+const stopResizeAndDrag = () => {
+  if (isDragging || isResizing) {
+    drawerStyle.value.transform = '';
+  }
+
+  isDragging = false;
+  isResizing = false;
+
+  document.removeEventListener('mousemove', onResize);
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup', stopResizeAndDrag);
+};
+const drawerStyle = ref({
+  transform: '',
+});
+
+// update cookies for drawer width
+watch(drawerWidth, (newWidth) => {
+  try {
+    Cookies.set('MAIN_APP_DRAWER_WIDTH', newWidth.toString());
+  } catch (error) {
+    console.error('Error setting drawer width cookie:', error);
+  }
+});
 </script>
+
+<style scoped>
+.resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6px;
+  height: 100%;
+  cursor: ew-resize;
+  z-index: 1000;
+}
+</style>

@@ -7,16 +7,51 @@ import type {
   GSK_STRUCTURES_CONSTANT_SETTINGS,
   GSK_STRUCTURES_VARIABLE_SETTINGS,
 } from 'src/services/library/types/structures/settings';
+import { Cookies } from 'quasar';
+
+function getAvailableConstantSettingsFromCookies(): GSK_STRUCTURES_CONSTANT_SETTINGS {
+  const settings: GSK_STRUCTURES_CONSTANT_SETTINGS = {
+    appName: GSK_APP_GLOBAL_CONSTANT_DEFAULT_NAME,
+    appVersion: GSK_APP_GLOBAL_CONSTANT_VERSION,
+  };
+  try {
+    const allSettings: Partial<GSK_STRUCTURES_CONSTANT_SETTINGS> =
+      Cookies.get('GSK_STRUCTURES_CONSTANT_SETTINGS') || '{}';
+    Object.keys(settings).forEach((key) => {
+      const typedKey = key as keyof GSK_STRUCTURES_CONSTANT_SETTINGS;
+      if (allSettings[typedKey]) {
+        settings[typedKey] = allSettings[typedKey]!;
+      }
+    });
+  } catch (error) {
+    console.error('Error getting settings from cookies:', error);
+  }
+  return settings;
+}
+
+function getAvailableVariableSettingsFromCookies(): GSK_STRUCTURES_VARIABLE_SETTINGS {
+  const settings: GSK_STRUCTURES_VARIABLE_SETTINGS = {
+    appLogo: '',
+  };
+  try {
+    const allSettings: Partial<GSK_STRUCTURES_VARIABLE_SETTINGS> =
+      Cookies.get('GSK_STRUCTURES_VARIABLE_SETTINGS') || '{}';
+    Object.keys(settings).forEach((key) => {
+      const typedKey = key as keyof GSK_STRUCTURES_VARIABLE_SETTINGS;
+      if (allSettings[typedKey]) {
+        settings[typedKey] = allSettings[typedKey]!;
+      }
+    });
+  } catch (error) {
+    console.error('Error getting settings from cookies:', error);
+  }
+  return settings;
+}
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
-    constants: {
-      appName: GSK_APP_GLOBAL_CONSTANT_DEFAULT_NAME,
-      appVersion: GSK_APP_GLOBAL_CONSTANT_VERSION,
-    },
-    variables: {
-      appLogo: '',
-    } as GSK_STRUCTURES_VARIABLE_SETTINGS,
+    constants: getAvailableConstantSettingsFromCookies(),
+    variables: getAvailableVariableSettingsFromCookies(),
     socketServerUrl: 'localhost:3333', // Default socket server URL
   }),
 
@@ -28,9 +63,11 @@ export const useSettingsStore = defineStore('settings', {
     },
     setVariableSettings(settings: GSK_STRUCTURES_VARIABLE_SETTINGS) {
       this.variables = settings;
+      Cookies.set('GSK_STRUCTURES_VARIABLE_SETTINGS', JSON.stringify(settings));
     },
     setConstantsSettings(settings: GSK_STRUCTURES_CONSTANT_SETTINGS) {
       this.constants = settings;
+      Cookies.set('GSK_STRUCTURES_CONSTANT_SETTINGS', JSON.stringify(settings));
     },
   },
 });

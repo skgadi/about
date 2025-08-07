@@ -4,7 +4,7 @@ import { useSettingsStore } from 'src/stores/settings-store';
 import { notify } from 'src/services/notifications/index';
 import { getSocketConfig } from './get-socket-config';
 
-import initTheApp from './events/init-the-app';
+import appSettings from './events/settings';
 
 class SocketioService {
   socket: Socket | null;
@@ -40,7 +40,7 @@ class SocketioService {
     this.socket.onAny((label, ...args) => {
       //console.log(label, args);
       useSocketStore().detectedReceivedActivity();
-      initTheApp(label, ...args);
+      appSettings(label, ...args);
     });
   }
 

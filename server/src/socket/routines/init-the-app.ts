@@ -6,6 +6,7 @@ import {
 } from "../../services/library/constants/app-init.js";
 import { GSK_APP_CONST_SETTINGS_TRANSFER } from "../../services/library/types/client-server-data-transfer.js";
 import { GSK_STRUCTURES_CONSTANT_SETTINGS } from "services/library/types/structures/settings.js";
+import { emitSettings, joinSettingsRoom } from "../rooms/settings.js";
 
 export const routines = async (io: any, socket: any) => {
   // Handle socket events and routines here
@@ -20,5 +21,7 @@ export const routines = async (io: any, socket: any) => {
       payload: constSettings,
     };
     socket.emit("GSK_APP_CONST_SETTINGS_TRANSFER", payload);
+    joinSettingsRoom(socket);
+    emitSettings(socket);
   });
 };
