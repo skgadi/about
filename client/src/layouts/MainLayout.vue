@@ -18,21 +18,7 @@
       bordered
     >
       <!--Drawer content starts here-->
-      <q-list>
-        <q-item to="/" exact clickable>
-          <q-item-section avatar>
-            <q-icon name="home" />
-          </q-item-section>
-          <q-item-section> Home </q-item-section>
-        </q-item>
-
-        <q-item to="/about" exact clickable>
-          <q-item-section avatar>
-            <q-icon name="info" />
-          </q-item-section>
-          <q-item-section> About </q-item-section>
-        </q-item>
-      </q-list>
+      <main-sidebar />
       <!--Drawer content ends here-->
       <!-- Resize handle -->
       <div class="resize-handle" @mousedown="startResize" />
@@ -50,6 +36,7 @@
 import UpdateRibbon from 'components/Generic/UpdateRibbon.vue';
 import ConnectivityIndicator from 'src/components/Generic/ConnectivityIndicator.vue';
 import CookiesConsent from 'src/components/Generic/CookiesConsent.vue';
+import MainSidebar from 'src/components/Sidebar/MainSidebar.vue';
 
 import { onMounted, ref, watch } from 'vue';
 import { useSettingsStore } from 'src/stores/settings-store';
