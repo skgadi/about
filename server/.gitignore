@@ -1,5 +1,5 @@
 # Also ignore Data files
-data/
+/data
 
 # Node.js
 # dependencies
