@@ -1,5 +1,5 @@
 import getAllSettings from "../../db/settings.js";
-import { GSK_APP_VAR_SETTINGS_TRANSFER } from "../../services/library/types/client-server-data-transfer.js";
+import { GSK_APP_VAR_SETTINGS_TRANSFER } from "../../services/library/types/data-transfer/settings.js";
 import { logIfVerbose } from "../../services/utils/logging.js";
 
 let io: any;

@@ -1,7 +1,7 @@
 import type {
   GSK_APP_CONST_SETTINGS_TRANSFER,
   GSK_APP_VAR_SETTINGS_TRANSFER,
-} from 'src/services/library/types/client-server-data-transfer';
+} from 'src/services/library/types/data-transfer/settings';
 import { useSettingsStore } from 'src/stores/settings-store';
 
 export const events = (label: string, ...args: unknown[]) => {
