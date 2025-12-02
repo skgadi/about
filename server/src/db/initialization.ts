@@ -21,7 +21,7 @@ const createDatabaseIfNotExists = () => {
   const dbFilePath = path.join(dbDirectory, "app-main.sqlite3");
   // during development, we can use the verbose option to log SQL queries
   // during production, you might want to remove this option
-  if (process.env.VERBOSE_LOGGING === "true") {
+  if (process.env.LOG_LEVEL === "VERBOSE") {
     return new Database(dbFilePath, { verbose: console.log });
   } else {
     return new Database(dbFilePath);

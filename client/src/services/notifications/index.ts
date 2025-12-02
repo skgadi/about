@@ -2,7 +2,7 @@ import { Notify, type QNotifyCreateOptions } from 'quasar';
 
 export const notify = (
   message: string,
-  caption = 'Switchgear',
+  caption = 'About',
   type:
     | 'error'
     | 'success'

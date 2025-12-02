@@ -8,7 +8,7 @@ import path from "path"; // <-- Import the path module
 import { prepareSocketServer } from "./main-socket.js";
 import { GSK_APP_GLOBAL_CONSTANT_PORT } from "./services/library/constants/app-init.js";
 import NodeSpecificUtils from "./services/utils/node-specific.js";
-import { logIfVerbose } from "./services/utils/logging.js";
+import { logger } from "./services/utils/logging.js";
 
 /**
  * This function starts the static server with Socket.IO support.
@@ -44,7 +44,7 @@ export const startStaticServerWithSocket = () => {
     const socketServerUrl = `//${req.headers.host}`;
 
     // Log for debugging
-    logIfVerbose(
+    logger.verbose(
       `Frontend is requesting config. Detected Socket.IO URL: ${socketServerUrl}`
     );
 
@@ -69,7 +69,7 @@ export const startStaticServerWithSocket = () => {
   // Start the server on a specified port
 
   server.listen(GSK_APP_GLOBAL_CONSTANT_PORT, () => {
-    logIfVerbose(`Server running on port ${GSK_APP_GLOBAL_CONSTANT_PORT}`);
+    logger.verbose(`Server running on port ${GSK_APP_GLOBAL_CONSTANT_PORT}`);
   });
-  logIfVerbose("Server file is running ...");
+  logger.verbose("Server file is running ...");
 };

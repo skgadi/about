@@ -2,7 +2,8 @@ import { Server } from "socket.io";
 import http from "http";
 import { socketRoutines } from "./socket/routines/index.js";
 import { initializeSocketRooms } from "./socket/rooms/index.js";
-import { logIfVerbose } from "./services/utils/logging.js";
+import { logger } from "./services/utils/logging.js";
+import { init as initSocketPaylods } from "./socket/payloads/index.js";
 
 export const prepareSocketServer = (
   server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
@@ -17,16 +18,18 @@ export const prepareSocketServer = (
 
   // Initialize socket rooms
   initializeSocketRooms(io);
+  // initialize payload stores
+  initSocketPaylods(io);
 
   io.on("connection", (socket) => {
-    logIfVerbose("A user connected");
+    logger.verbose("A user connected");
 
     // Handle socket routines
     socketRoutines(io, socket);
 
     // Handle disconnection
     socket.on("disconnect", () => {
-      logIfVerbose("User disconnected");
+      logger.verbose("User disconnected");
     });
   });
 };

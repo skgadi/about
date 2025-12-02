@@ -3,8 +3,11 @@ import { useSocketStore } from 'src/stores/socket-store';
 import { useSettingsStore } from 'src/stores/settings-store';
 import { notify } from 'src/services/notifications/index';
 import { getSocketConfig } from './get-socket-config';
+import { useAuthStore } from 'src/stores/auth-store';
 
 import appSettings from './events/settings';
+import authEvents from './events/auth';
+import notificationsEvents from './events/notifications';
 
 class SocketioService {
   socket: Socket | null;
@@ -25,8 +28,11 @@ class SocketioService {
     }); // Replace with your server URL
 
     this.socket.on('connect', () => {
-      useSocketStore().connected();
-      useSocketStore().resubscribeAll();
+      const socketStore = useSocketStore();
+      socketStore.connected();
+      socketStore.resubscribeAll();
+      const authStore = useAuthStore();
+      authStore.signOut();
 
       notify('Conexión exitosa', 'Socket', 'positive');
     });
@@ -41,6 +47,8 @@ class SocketioService {
       //console.log(label, args);
       useSocketStore().detectedReceivedActivity();
       appSettings(label, ...args);
+      authEvents(label, ...args);
+      notificationsEvents(label, ...args);
     });
   }
 

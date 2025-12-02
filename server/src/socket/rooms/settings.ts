@@ -1,6 +1,6 @@
 import getAllSettings from "../../db/settings.js";
 import { GSK_APP_VAR_SETTINGS_TRANSFER } from "../../services/library/types/data-transfer/settings.js";
-import { logIfVerbose } from "../../services/utils/logging.js";
+import { logger } from "../../services/utils/logging.js";
 
 let io: any;
 
@@ -10,12 +10,13 @@ export const initializeSocketRooms = (inIo: any) => {
 
 export const joinSettingsRoom = (socket: any) => {
   socket.join("settings");
-  logIfVerbose(`Socket ${socket.id} joined settings room.`);
+  emitSettings(socket);
+  logger.verbose(`Socket ${socket.id} joined settings room.`);
 };
 
 export const leaveSettingsRoom = (socket: any) => {
   socket.leave("settings");
-  logIfVerbose(`Socket ${socket.id} left settings room.`);
+  logger.verbose(`Socket ${socket.id} left settings room.`);
 };
 
 export const emitSettings = (socket: any) => {
@@ -30,6 +31,6 @@ export const emitSettings = (socket: any) => {
   } else if (io) {
     io.to("settings").emit("GSK_APP_VAR_SETTINGS_TRANSFER", payload);
   } else {
-    console.error("Socket.io instance is not initialized.");
+    logger.critical("Socket.io instance is not initialized.");
   }
 };
