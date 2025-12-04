@@ -20,7 +20,7 @@ import {
 import { GSK_USER_SELF_DETAILS } from "../../services/library/types/structures/users.js";
 import { usersRoom } from "../../socket/rooms/users.js";
 
-export const routines = async (io: any, socket: any) => {
+export const routines = (io: any, socket: any) => {
   socket.on("GSK_CS_AUTH_SIGN_IN", async (data: GSK_CS_AUTH_SIGN_IN) => {
     try {
       const { email, password } = data.payload;

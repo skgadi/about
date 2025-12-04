@@ -20,6 +20,7 @@ class SocketioService {
     //const isProduction = process.env.NODE_ENV === 'production';
     await getSocketConfig();
     const settingsStore = useSettingsStore();
+    const authStore = useAuthStore();
     this.socket = io(settingsStore.socketServerUrl, {
       transports: ['websocket'],
       autoConnect: true,
@@ -30,15 +31,15 @@ class SocketioService {
     this.socket.on('connect', () => {
       const socketStore = useSocketStore();
       socketStore.connected();
-      socketStore.resubscribeAll();
-      const authStore = useAuthStore();
       authStore.signOut();
+      socketStore.resubscribeAll();
 
       notify('Conexión exitosa', 'Socket', 'positive');
     });
 
     this.socket.on('disconnect', () => {
       useSocketStore().disconnected();
+      authStore.signOut();
 
       notify('Servidor desconectado', 'Socket', 'negative');
     });

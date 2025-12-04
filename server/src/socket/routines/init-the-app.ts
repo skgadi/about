@@ -9,7 +9,7 @@ import { GSK_STRUCTURES_CONSTANT_SETTINGS } from "../../services/library/types/s
 import { emitSettings, joinSettingsRoom } from "../rooms/settings.js";
 import { usersRoom } from "../../socket/rooms/users.js";
 
-export const routines = async (io: any, socket: any) => {
+export const routines = (io: any, socket: any) => {
   // Handle socket events and routines here
   socket.on("GSK_APP_INIT", async () => {
     // Emit an event to the client with the app name

@@ -9,7 +9,7 @@ const createDatabaseIfNotExists = () => {
   // create a new SQLite database if it does not exist
   // Its db name is: app-main.sqlite3
   // its folder should be: data
-  const dbDirectory = path.join(NodeSpecificUtils.getProjectRoot(), "data");
+  const dbDirectory = path.join(NodeSpecificUtils.getProjectRoot(), "data/db");
 
   // If path does not exist, create it
 
