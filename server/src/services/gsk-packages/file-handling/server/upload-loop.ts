@@ -60,6 +60,12 @@ export const uploadLoop = (info: GSK_PKG_FL_ST_DB_INFO_SERVER) => {
     };
     chunksToRequest.push({ socketId: transfer.socketId, chunk });
 
+    info.socketUploads.push({
+      socketId: transfer.socketId,
+      fileId: transfer.fileId,
+      chunkId: chunk.chunkIndex,
+    });
+
     if (isThisLastChunk) {
       // All chunks have been requested for this transfer
       transferIdx++;

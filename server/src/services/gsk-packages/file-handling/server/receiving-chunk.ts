@@ -40,14 +40,15 @@ export const receivingChunk = (
           // update the record
           record.chunksCompleted.push(chunkIndex);
 
-          // send ack to client
-          const emitChunkAck: GSK_PKG_FL_DT_TRANSFER_COMPLETE = {
-            id: "GSK_PKG_FL_DT_FILE_TRANSFER_COMPLETE",
-            payload: {
-              fileId: record.fileId,
-            },
-          };
-          socket.emit("GSK_PKG_FL_DT_TRANSFER_COMPLETE", emitChunkAck);
+          // Since data is removed. It is considered as this chunk upload is finished. So, remove from info.socketUploads
+          info.socketUploads = info.socketUploads.filter(
+            (su) =>
+              !(
+                su.socketId === socket.id &&
+                su.fileId === fileId &&
+                su.chunkId === chunkIndex
+              )
+          );
 
           // check if upload is complete
           if (record.chunksCompleted.length === record.totalNumberOfChunks) {
@@ -146,7 +147,7 @@ const failedReceivingChunkResponse = (
   if (!associatedElement) {
     payloadToClient.payload.error = "file-not-found";
     socket.emit("GSK_PKG_FL_DT_FAILED", payloadToClient);
-    logger.critical(
+    logger.moderate(
       `No upload record found for fileId: ${chunkData.payload.chunk.fileId}`
     );
     return;

@@ -16,6 +16,7 @@ export const cancelTransfer = (
     "GSK_PKG_FL_DT_CANCEL_TRANSFER",
     async (data: GSK_PKG_FL_DT_CANCEL_TRANSFER) => {
       try {
+        console.log(`Cancelling transfer for fileId: ${data.payload.fileId}`);
         const fileId = data.payload.fileId;
         // find the record
         const recordIndex = info.transfersInProgress.findIndex(
@@ -38,19 +39,23 @@ export const cancelTransfer = (
         const record = info.transfersInProgress[recordIndex];
         record.chunksCompleted.forEach(async (chunkIndex) => {
           const chunkFileName =
-            record.localStoragePath + `/${fileId}_chunk_${chunkIndex}`;
+            record.localStoragePath + `_chunk_${chunkIndex}`;
           try {
             await fs.unlink(chunkFileName);
           } catch (err) {
             // ignore errors
+            console.log(`Error deleting chunk file ${chunkFileName}: ${err}`);
           }
         });
 
         // remove the main file
         try {
-          await fs.unlink(record.localStoragePath + `/${fileId}`);
+          await fs.unlink(record.localStoragePath);
         } catch (err) {
           // ignore errors
+          console.log(
+            `Error deleting main file ${record.localStoragePath}: ${err}`
+          );
         }
 
         // remove the record from transfersInProgress

@@ -7,6 +7,7 @@ import type {
   GSK_PKG_FL_DT_UPLOAD_ACK,
   GSK_PKG_FL_DT_UPLOAD_INIT,
   GSK_PKG_FL_DT_TRANSFER_CHUNK,
+  GSK_PKG_FL_DT_CANCEL_TRANSFER,
 } from '../../types/data-transfer';
 import { useSocketStore } from 'src/stores/socket-store';
 
@@ -17,7 +18,6 @@ export const useGskPkgFileStore = defineStore('gskPkgFile', {
       transfersInProgress: [],
     } as GSK_PKG_FL_ST_DB_INFO_CLIENT,
     uploads: [] as {
-      localUuid: string;
       fileId: string;
       sha512Hash: string;
       file: File;
@@ -29,8 +29,8 @@ export const useGskPkgFileStore = defineStore('gskPkgFile', {
   getters: {
     uploadProgress:
       (state) =>
-      (localUuid: string): number => {
-        const upload = state.uploads.find((el) => el.localUuid === localUuid);
+      (sha512Hash: string): number => {
+        const upload = state.uploads.find((el) => el.sha512Hash === sha512Hash);
         if (!upload) {
           return 0;
         }
@@ -49,7 +49,7 @@ export const useGskPkgFileStore = defineStore('gskPkgFile', {
       };
     },
 
-    uploadInit(file: File, sha512Hash: string, localUuid: string) {
+    uploadInit(file: File, sha512Hash: string) {
       const payload: GSK_PKG_FL_DT_UPLOAD_INIT = {
         id: 'GSK_PKG_FL_DT_FILE_UPLOAD_INIT',
         payload: {
@@ -63,7 +63,6 @@ export const useGskPkgFileStore = defineStore('gskPkgFile', {
         },
       };
       const out = {
-        localUuid: localUuid,
         sha512Hash: sha512Hash,
         file: file,
         fileId: '', // to be filled upon receiving upload ack
@@ -127,11 +126,46 @@ export const useGskPkgFileStore = defineStore('gskPkgFile', {
       localFileData.uploadedSizeInBytes += inData.payload.chunkInfo.chunkSizeInBytes;
       reader.readAsArrayBuffer(localFileData.file.slice(start, end));
     },
+
     markUploadComplete(data: GSK_PKG_FL_DT_TRANSFER_COMPLETE) {
       const localFileData = this.uploads.find((el) => el.fileId === data.payload.fileId);
       if (localFileData) {
         localFileData.isFinished = true;
       }
+    },
+
+    stopUpload(sha512Hash: string) {
+      const uploadIndex = this.uploads.findIndex((el) => el.sha512Hash === sha512Hash);
+      const fileId = this.uploads[uploadIndex]?.fileId;
+
+      // find if transfer is in progress
+      const transferIndex = this.info.transfersInProgress.findIndex(
+        (el) => el.sha512Hash === sha512Hash,
+      );
+
+      // remove from transfers in progress
+      if (transferIndex !== -1) {
+        this.info.transfersInProgress.splice(transferIndex, 1);
+      }
+      // remove from uploads
+      if (uploadIndex !== -1) {
+        this.uploads.splice(uploadIndex, 1);
+      }
+
+      if (!fileId) {
+        return;
+      }
+
+      // emit cancel transfer if fileId exists
+      const toServer: GSK_PKG_FL_DT_CANCEL_TRANSFER = {
+        id: 'GSK_PKG_FL_DT_CANCEL_TRANSFER',
+        payload: {
+          fileId,
+          reason: 'User cancelled the upload',
+        },
+      };
+      console.log('Emitting cancel transfer for fileId:', toServer);
+      useSocketStore().emit('GSK_PKG_FL_DT_CANCEL_TRANSFER', toServer);
     },
   },
 });
