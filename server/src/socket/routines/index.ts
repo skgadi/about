@@ -4,14 +4,18 @@ import { gskPkgFileHandlingServerIndex } from "../../services/gsk-packages/file-
 import path from "path";
 import NodeSpecificUtils from "../../services/utils/node-specific.js";
 
+// Initialize file upload handling
+const tempUploadPath = path.join(
+  NodeSpecificUtils.getProjectRoot(),
+  "data/temp-uploads"
+);
+const fileHandlingServer = new gskPkgFileHandlingServerIndex(
+  tempUploadPath,
+  512 * 1024
+);
+
 export const socketRoutines = async (io: any, socket: any) => {
   initTheApp(io, socket);
   auth(io, socket);
-
-  // Initialize file upload handling
-  const tempUploadPath = path.join(
-    NodeSpecificUtils.getProjectRoot(),
-    "data/temp-uploads"
-  );
-  new gskPkgFileHandlingServerIndex(socket, tempUploadPath, 512 * 1024);
+  fileHandlingServer.routines(socket);
 };

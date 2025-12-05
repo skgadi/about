@@ -49,6 +49,7 @@ export const downloadRequest = (
             fileInfo: {
               fileId,
               ...chunkMeta,
+              ...data.payload.fileInfo.fileMeta,
             },
           },
         };

@@ -301,7 +301,7 @@ export interface GSK_DOCUMENT {
   uploadedByUserId?: string | number;
 
   tags?: string[];
-  checksumSHA256?: string;
+  checksumSHA512: string;
 
   relatedEventId?: string;
   relatedTimelineId?: string;

@@ -37,8 +37,7 @@ export interface GSK_PKG_FL_ST_DB_RECORD
   isComplete: boolean;
 }
 
-export interface GSK_PKG_FL_ST_DB_RECORD_CLIENT
-  extends GSK_PKG_FL_ST_DB_RECORD {
+export interface GSK_PKG_FL_ST_DB_RECORD_CLIENT extends GSK_PKG_FL_ST_DB_RECORD {
   file: File; // The actual File object being uploaded
 }
 

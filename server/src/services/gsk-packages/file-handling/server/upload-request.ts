@@ -60,6 +60,7 @@ export const uploadRequest = (
             fileInfo: {
               fileId,
               ...chunkMeta,
+              ...data.payload.fileInfo,
             },
           },
         };
