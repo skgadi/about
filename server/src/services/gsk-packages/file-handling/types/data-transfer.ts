@@ -35,14 +35,14 @@ export interface GSK_PKG_FL_ST_DOWNLOAD_ACK {
 }
 
 export interface GSK_PKG_FL_DT_REQUEST_CHUNK {
-  id: "GSK_PKG_FL_DT_REQUEST_FILE_CHUNK";
+  id: "GSK_PKG_FL_DT_REQUEST_CHUNK";
   payload: {
     chunkInfo: GSK_PKG_FL_ST_CHUNK_INFO;
   };
 }
 
 export interface GSK_PKG_FL_DT_TRANSFER_CHUNK {
-  id: "GSK_PKG_FL_DT_FILE_CHUNK_TRANSFER";
+  id: "GSK_PKG_FL_DT_TRANSFER_CHUNK";
   payload: {
     chunk: GSK_PKG_FL_ST_CHUNK;
   };
@@ -74,8 +74,16 @@ export interface GSK_PKG_FL_DT_CANCEL_ACK {
 }
 
 export type GSK_PKG_FL_DT_FAILED = {
-  id: "GSK_PKG_FL_DT_FILE_TRANSFER_FAILED";
+  id: "GSK_PKG_FL_DT_FAILED";
   payload: {
+    error:
+      | "file-not-found"
+      | "invalid-chunk-request"
+      | "transfer-cancelled"
+      | "too-many-concurrent-transfers-total"
+      | "too-many-concurrent-transfers-per-client"
+      | "too-many-concurrent-transfers-per-file"
+      | "internal-server-error";
     errorMessage: string;
   };
 };

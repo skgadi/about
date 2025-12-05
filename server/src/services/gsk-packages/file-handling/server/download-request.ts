@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import { Socket } from "socket.io";
-import { GSK_PKG_FL_ST_DB_SERVER_INFO } from "../types/structure.js";
+import { GSK_PKG_FL_ST_DB_INFO_SERVER } from "../types/structure.js";
 import {
   GSK_PKG_FL_DT_DOWNLOAD_INIT,
   GSK_PKG_FL_DT_FAILED,
@@ -11,7 +11,7 @@ import { getChunkMeta } from "../utils/chunk-size.js";
 
 export const downloadRequest = (
   socket: Socket,
-  info: GSK_PKG_FL_ST_DB_SERVER_INFO
+  info: GSK_PKG_FL_ST_DB_INFO_SERVER
 ) => {
   socket.on(
     "GSK_PKG_FL_DT_DOWNLOAD_INIT",
@@ -24,12 +24,13 @@ export const downloadRequest = (
           await fs.access(originalFileLocation);
         } catch (err) {
           const output: GSK_PKG_FL_DT_FAILED = {
-            id: "GSK_PKG_FL_DT_FILE_TRANSFER_FAILED",
+            id: "GSK_PKG_FL_DT_FAILED",
             payload: {
+              error: "file-not-found",
               errorMessage: `File with fileId: ${fileId} does not exist on server.`,
             },
           };
-          socket.emit("GSK_PKG_FL_DT_FILE_TRANSFER_FAILED", output);
+          socket.emit("GSK_PKG_FL_DT_FAILED", output);
           return;
         }
 
@@ -57,12 +58,13 @@ export const downloadRequest = (
         socket.emit("GSK_PKG_FL_DT_FILE_DOWNLOAD_ACK", output);
       } catch (error) {
         const output: GSK_PKG_FL_DT_FAILED = {
-          id: "GSK_PKG_FL_DT_FILE_TRANSFER_FAILED",
+          id: "GSK_PKG_FL_DT_FAILED",
           payload: {
+            error: "internal-server-error",
             errorMessage: (error as Error).message,
           },
         };
-        socket.emit("GSK_PKG_FL_DT_FILE_TRANSFER_FAILED", output);
+        socket.emit("GSK_PKG_FL_DT_FAILED", output);
         logger.critical(`Download request failed: ${(error as Error).message}`);
       }
     }

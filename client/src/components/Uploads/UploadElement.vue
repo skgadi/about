@@ -22,7 +22,14 @@
         @click="uploadFile()"
       />
       <q-btn v-else flat round dense @click="isUploading = false">
-        <q-circular-progress size="md" indeterminate :thickness="0.2" color="primary" show-value>
+        <q-circular-progress
+          size="md"
+          :indeterminate="!gskPkgFileStore.uploadProgress(fileUuid)"
+          :value="gskPkgFileStore.uploadProgress(fileUuid)"
+          :thickness="0.2"
+          color="primary"
+          show-value
+        >
           <q-icon color="negative" name="mdi-stop" />
         </q-circular-progress>
       </q-btn>
@@ -35,11 +42,13 @@
 import { ref } from 'vue';
 import { createSHA512 } from 'hash-wasm';
 import { useGskPkgFileStore } from 'src/services/gsk-packages/file-handling/client/store/file-store';
+import { uid } from 'quasar';
 
 const gskPkgFileStore = useGskPkgFileStore();
 const file = ref<File | null>(null);
 
 const isUploading = ref(false);
+const fileUuid = ref<string>('');
 
 const uploadFile = async () => {
   if (file.value) {
@@ -52,7 +61,8 @@ const uploadFile = async () => {
     }
     console.log('Uploading file with hash:', hash.value); // For debugging
     try {
-      gskPkgFileStore.uploadInit(file.value, '');
+      fileUuid.value = uid();
+      gskPkgFileStore.uploadInit(file.value, hash.value, fileUuid.value);
       file.value = null;
     } catch (error) {
       console.error('File upload failed:', error);
@@ -64,43 +74,35 @@ const uploadFile = async () => {
 
 const hash = ref<string>('');
 const progress = ref<number>(0);
-const CHUNK_SIZE = 32 * 1024 * 1024; // 32 MB
 
-async function calculateSha512(f: File | null): Promise<void> {
-  if (!f) return;
+async function calculateSha512(file: File | null): Promise<void> {
+  if (!file) return;
+
   hash.value = 'Calculating...';
   progress.value = 0;
 
-  hash.value = await hashLargeFile(f);
+  hash.value = await hashLargeFile(file);
 }
 
 async function hashLargeFile(file: File): Promise<string> {
   const sha = await createSHA512();
   sha.init();
 
-  const totalSize = file.size;
-  let offset = 0;
+  const reader = file.stream().getReader(); // Pure binary stream
+  let bytesRead = 0;
+  const total = file.size;
 
-  while (offset < totalSize) {
-    const chunk = file.slice(offset, offset + CHUNK_SIZE);
-    const buf = await readChunk(chunk);
-    sha.update(new Uint8Array(buf));
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
 
-    offset += CHUNK_SIZE;
-    progress.value = Math.min(100, (offset / totalSize) * 100);
+    // value is a Uint8Array — safe binary
+    sha.update(value);
+
+    bytesRead += value.length;
+    progress.value = (bytesRead / total) * 100;
   }
 
-  return sha.digest();
-}
-
-function readChunk(blob: Blob): Promise<ArrayBuffer> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = () => resolve(reader.result as ArrayBuffer);
-    reader.onerror = () => reject(new Error(reader.error?.message || 'Failed to read file chunk'));
-
-    reader.readAsArrayBuffer(blob);
-  });
+  return sha.digest(); // pure hex string
 }
 </script>

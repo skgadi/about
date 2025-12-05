@@ -7,7 +7,8 @@ import {
 import {
   GSK_PKG_FL_ST_FILE_CHUNK_META,
   GSK_PKG_FL_ST_DB_RECORD,
-  GSK_PKG_FL_ST_DB_SERVER_INFO,
+  GSK_PKG_FL_ST_DB_INFO_SERVER,
+  GSK_PKG_FL_ST_DB_RECORD_SERVER,
 } from "../types/structure.js";
 import { v7 as uuidv7 } from "uuid";
 import { Socket } from "socket.io";
@@ -16,7 +17,7 @@ import { getChunkMeta } from "../utils/chunk-size.js";
 
 export const uploadRequest = (
   socket: Socket,
-  info: GSK_PKG_FL_ST_DB_SERVER_INFO
+  info: GSK_PKG_FL_ST_DB_INFO_SERVER
 ) => {
   socket.on(
     "GSK_PKG_FL_DT_UPLOAD_INIT",
@@ -40,10 +41,11 @@ export const uploadRequest = (
             info.maxChunkSizeBytes,
         };*/
 
-        const newRecod: GSK_PKG_FL_ST_DB_RECORD = {
+        const newRecod: GSK_PKG_FL_ST_DB_RECORD_SERVER = {
           ...data.payload.fileInfo,
           ...chunkMeta,
           fileId,
+          socketId: socket.id,
           localStoragePath,
           chunksCompleted: [],
           remainingChunks: Array.from(
@@ -67,12 +69,13 @@ export const uploadRequest = (
         socket.emit("GSK_PKG_FL_DT_UPLOAD_ACK", output);
       } catch (error) {
         const output: GSK_PKG_FL_DT_FAILED = {
-          id: "GSK_PKG_FL_DT_FILE_TRANSFER_FAILED",
+          id: "GSK_PKG_FL_DT_FAILED",
           payload: {
+            error: "internal-server-error",
             errorMessage: (error as Error).message,
           },
         };
-        socket.emit("GSK_PKG_FL_DT_FILE_TRANSFER_FAILED", output);
+        socket.emit("GSK_PKG_FL_DT_FAILED", output);
         logger.critical(`Upload request failed: ${(error as Error).message}`);
       }
     }

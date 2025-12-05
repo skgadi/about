@@ -4,7 +4,7 @@ import { pipeline } from "stream/promises";
 
 import { Socket } from "socket.io";
 import fs from "fs/promises";
-import { GSK_PKG_FL_ST_DB_SERVER_INFO } from "../types/structure.js";
+import { GSK_PKG_FL_ST_DB_INFO_SERVER } from "../types/structure.js";
 import {
   GSK_PKG_FL_DT_FAILED,
   GSK_PKG_FL_DT_TRANSFER_CHUNK,
@@ -14,12 +14,15 @@ import { logger } from "../../../../services/utils/logging.js";
 
 export const receivingChunk = (
   socket: Socket,
-  info: GSK_PKG_FL_ST_DB_SERVER_INFO
+  info: GSK_PKG_FL_ST_DB_INFO_SERVER
 ) => {
   socket.on(
     "GSK_PKG_FL_DT_TRANSFER_CHUNK",
     async (data: GSK_PKG_FL_DT_TRANSFER_CHUNK) => {
       try {
+        console.log(
+          `Receiving chunk index ${data.payload.chunk.chunkIndex} for fileId: ${data.payload.chunk.fileId}; size: ${data.payload.chunk.chunkSizeInBytes} bytes`
+        );
         // strore the chunk data to the file with name `{fileId}_chunk_{chunkIndex}`
         const record = info.transfersInProgress.find(
           (rec) => rec.fileId === data.payload.chunk.fileId
@@ -27,17 +30,15 @@ export const receivingChunk = (
         if (record) {
           const fileId = data.payload.chunk.fileId;
           const fileLocation =
-            record.localStoragePath +
-            `/${fileId}_chunk_${data.payload.chunk.chunkIndex}`;
+            record.localStoragePath + `_chunk_${data.payload.chunk.chunkIndex}`;
           const chunkIndex = data.payload.chunk.chunkIndex;
           const chunkData = data.payload.chunk.data;
-          fs.writeFile(fileLocation, Buffer.from(chunkData));
+          const rawBuffer = toBufferMaybe(chunkData);
+          // if file exists, replace it
+          await fs.writeFile(fileLocation, rawBuffer);
 
           // update the record
           record.chunksCompleted.push(chunkIndex);
-          record.remainingChunks = record.remainingChunks.filter(
-            (idx) => idx !== chunkIndex
-          );
 
           // send ack to client
           const emitChunkAck: GSK_PKG_FL_DT_TRANSFER_COMPLETE = {
@@ -52,38 +53,38 @@ export const receivingChunk = (
           if (record.chunksCompleted.length === record.totalNumberOfChunks) {
             // join all chunks to form the final file
             // Make sure the RAM is not overloaded for large files
-            const finalFileName = record.localStoragePath + `/${fileId}`; // An empty file is created during upload init
+            const finalFileName = record.localStoragePath; // An empty file is created during upload init
             const writeStream = await fs.open(finalFileName, "w");
             // Make sure the file is empty
             await writeStream.truncate(0);
-            for (let i = 0; i < record.totalNumberOfChunks; i++) {
-              const chunkFileName =
-                record.localStoragePath + `/${fileId}_chunk_${i}`;
-              const chunkData = await fs.readFile(chunkFileName);
-              await writeStream.write(chunkData);
-              // delete the chunk file after writing
-              await fs.unlink(chunkFileName);
-            }
             await writeStream.close();
+
+            const finalStream = fs1.createWriteStream(finalFileName);
+
+            for (let i = 0; i < record.totalNumberOfChunks; i++) {
+              const chunkFileName = record.localStoragePath + `_chunk_${i}`;
+              const data = await fs.readFile(chunkFileName); // chunk is small
+              finalStream.write(data);
+            }
+
+            finalStream.end();
+
             // check the checksum is correct
             const hex = await getFileChecksumWithAwait(finalFileName, "sha512");
+            console.log(`Calculated checksum for fileId: ${fileId} is ${hex}`);
             if (hex !== record.sha512Hash) {
-              const output: GSK_PKG_FL_DT_FAILED = {
-                id: "GSK_PKG_FL_DT_FILE_TRANSFER_FAILED",
-                payload: {
-                  errorMessage: `Checksum mismatch for fileId: ${fileId}`,
-                },
-              };
-              socket.emit("GSK_PKG_FL_DT_FILE_TRANSFER_FAILED", output);
-              logger.critical(
-                `Checksum mismatch for fileId: ${fileId}. Expected: ${record.sha512Hash}, Got: ${hex}`
+              failedReceivingChunkResponse(
+                `Checksum mismatch for fileId: ${fileId}`,
+                "invalid-chunk-request",
+                data,
+                socket,
+                info
               );
               return;
             }
 
             // mark the record as complete
             record.isComplete = true;
-
             // emiting GSK_PKG_FL_DT_TRANSFER_COMPLETE event to client
             const transferCompleteEmit: GSK_PKG_FL_DT_TRANSFER_COMPLETE = {
               id: "GSK_PKG_FL_DT_FILE_TRANSFER_COMPLETE",
@@ -95,30 +96,79 @@ export const receivingChunk = (
               "GSK_PKG_FL_DT_TRANSFER_COMPLETE",
               transferCompleteEmit
             );
+
+            // cleanup chunk files
+            for (let i = 0; i < record.totalNumberOfChunks; i++) {
+              const chunkFileName = record.localStoragePath + `_chunk_${i}`;
+              await fs.unlink(chunkFileName);
+            }
           }
         } else {
-          const output: GSK_PKG_FL_DT_FAILED = {
-            id: "GSK_PKG_FL_DT_FILE_TRANSFER_FAILED",
-            payload: {
-              errorMessage: `No upload record found for fileId: ${data.payload.chunk.fileId}`,
-            },
-          };
-          socket.emit("GSK_PKG_FL_DT_FILE_TRANSFER_FAILED", output);
-          logger.critical(
-            `No upload record found for fileId: ${data.payload.chunk.fileId}`
+          failedReceivingChunkResponse(
+            `No upload record found for fileId: ${data.payload.chunk.fileId}`,
+            "invalid-chunk-request",
+            data,
+            socket,
+            info
           );
         }
       } catch (error) {
-        const output: GSK_PKG_FL_DT_FAILED = {
-          id: "GSK_PKG_FL_DT_FILE_TRANSFER_FAILED",
-          payload: {
-            errorMessage: (error as Error).message,
-          },
-        };
-        socket.emit("GSK_PKG_FL_DT_FILE_TRANSFER_FAILED", output);
-        logger.critical(`Receiving chunk failed: ${(error as Error).message}`);
+        failedReceivingChunkResponse(
+          (error as Error).message,
+          "internal-server-error",
+          data,
+          socket,
+          info
+        );
       }
     }
+  );
+};
+
+const failedReceivingChunkResponse = (
+  reason: string,
+  error: GSK_PKG_FL_DT_FAILED["payload"]["error"],
+
+  chunkData: GSK_PKG_FL_DT_TRANSFER_CHUNK,
+  socket: Socket,
+  info: GSK_PKG_FL_ST_DB_INFO_SERVER
+) => {
+  const payloadToClient: GSK_PKG_FL_DT_FAILED = {
+    id: "GSK_PKG_FL_DT_FAILED",
+    payload: {
+      error: error,
+      errorMessage: reason,
+    },
+  };
+  const associatedElement = info.transfersInProgress.find(
+    (el) => el.fileId === chunkData.payload.chunk.fileId
+  );
+  if (!associatedElement) {
+    payloadToClient.payload.error = "file-not-found";
+    socket.emit("GSK_PKG_FL_DT_FAILED", payloadToClient);
+    logger.critical(
+      `No upload record found for fileId: ${chunkData.payload.chunk.fileId}`
+    );
+    return;
+  }
+
+  // Re-add the chunk index back to remainingChunks for re-transfer (if it is not found there)
+  if (
+    !associatedElement.remainingChunks.includes(
+      chunkData.payload.chunk.chunkIndex
+    )
+  ) {
+    associatedElement.remainingChunks.push(chunkData.payload.chunk.chunkIndex);
+  }
+
+  // remove from chunksCompleted
+  associatedElement.chunksCompleted = associatedElement.chunksCompleted.filter(
+    (idx) => idx !== chunkData.payload.chunk.chunkIndex
+  );
+
+  socket.emit("GSK_PKG_FL_DT_FAILED", payloadToClient);
+  logger.critical(
+    `Failed chunk transfer for fileId: ${chunkData.payload.chunk.fileId}, reason: ${reason}`
   );
 };
 
@@ -151,4 +201,26 @@ async function getFileChecksumWithAwait(
     console.error("Error during file processing:", error);
     throw error; // Re-throw the error for the caller to handle
   }
+}
+
+function toBufferMaybe(input: any): Buffer {
+  // Buffer: return as is
+  if (Buffer.isBuffer(input)) return input;
+
+  // ArrayBuffer
+  if (input instanceof ArrayBuffer) return Buffer.from(input);
+
+  // TypedArray / DataView
+  if (ArrayBuffer.isView(input)) {
+    // covers Uint8Array, Int8Array, DataView, etc.
+    return Buffer.from(input.buffer, input.byteOffset, input.byteLength);
+  }
+
+  // socket.io sometimes gives { type: 'Buffer', data: [1,2,3,...] }
+  if (input && Array.isArray(input.data)) return Buffer.from(input.data);
+
+  // Last resort: if it's an array-like of numbers
+  if (Array.isArray(input)) return Buffer.from(input);
+
+  throw new TypeError("Unsupported chunk data format for conversion to Buffer");
 }
