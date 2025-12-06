@@ -289,7 +289,7 @@ export interface GSK_DOCUMENT {
   id: string;
   metaInfo: GSK_META_INFO;
 
-  documentType: string;
+  extension: string;
   originalName: string;
   sizeBytes: number;
   mimeType?: string;

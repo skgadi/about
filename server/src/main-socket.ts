@@ -4,9 +4,8 @@ import { socketRoutines } from "./socket/routines/index.js";
 import { initializeSocketRooms } from "./socket/rooms/index.js";
 import { logger } from "./services/utils/logging.js";
 import { init as initSocketPaylods } from "./socket/payloads/index.js";
-import NodeSpecificUtils from "./services/utils/node-specific.js";
-import path from "path";
 import { gskPkgFileHandlingServerIndex } from "./services/gsk-packages/file-handling/server/index.js";
+import fileFolderUtils from "./services/utils/users/files-folder.js";
 
 export const prepareSocketServer = (
   server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
@@ -25,13 +24,10 @@ export const prepareSocketServer = (
   initSocketPaylods(io);
 
   // Initialize file upload handling
-  const tempUploadPath = path.join(
-    NodeSpecificUtils.getProjectRoot(),
-    "data/temp-uploads"
-  );
+
   const fileHandlingServer = new gskPkgFileHandlingServerIndex(
     io,
-    tempUploadPath
+    fileFolderUtils.getTempUploadsRoot()
   );
   io.on("connection", (socket) => {
     logger.verbose("A user connected");

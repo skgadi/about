@@ -155,3 +155,30 @@ const keepOnlyPublicDetails = (
 
   return output;
 };
+
+export const jsonToDbUser = (user: GSK_USER): GSK_USER_DB => {
+  const output: GSK_USER_DB = {
+    id: user.id,
+    username: user.username || "",
+    avatarUrl: user.avatarUrl || "",
+    name: user.name || "",
+    displayName: user.displayName || "",
+    roles: JSON.stringify(user.roles),
+    details: JSON.stringify(user.details),
+    email: user.email || "",
+    status: user.status,
+    isAdmin: user.isAdmin ? 1 : 0,
+    isSuperAdmin: user.isSuperAdmin ? 1 : 0,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    createdBy: String(user.createdBy),
+    updatedBy: String(user.updatedBy),
+    registeredAt: user.registeredAt,
+    log: JSON.stringify(user.log),
+    subscriptionBundle: JSON.stringify(user.subscriptionBundle),
+    passwordHash: user.passwordHash || "",
+    recoveryCode: user.recoveryCode || "",
+    settings: JSON.stringify(user.settings || {}),
+  };
+  return output;
+};

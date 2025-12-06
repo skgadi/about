@@ -87,6 +87,26 @@ class SignedInStore {
     this.userToSocket.clear();
     this.socketToUser.clear();
   }
+
+  /** Get if a user is authorized to edit given userId
+   * Only basic user records are considered here.
+   * The details related to payment is not considered here.
+   * A user can edit their own record, or if they are admin/superadmin
+   *
+   *
+   * @param socketId Socket ID of the signed-in user
+   * @param userId User ID of the record to edit
+   * @returns boolean indicating if authorized
+   */
+  isAuthorizedToEditBasicUserRecords(
+    socketId: string,
+    userId: string
+  ): boolean {
+    const user = this.getUserBySocketId(socketId);
+    if (!user) return false;
+    // if user is the same as userId, or is admin/superadmin
+    return user.id === userId || user.isAdmin || user.isSuperAdmin;
+  }
 }
 
 // Singleton instance of the store

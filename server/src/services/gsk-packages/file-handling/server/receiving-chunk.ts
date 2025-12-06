@@ -141,6 +141,18 @@ const failedReceivingChunkResponse = (
       errorMessage: reason,
     },
   };
+
+  // remove the chunk file if exists
+  const tempChunkFilePath =
+    info.transfersInProgress.find(
+      (el) => el.fileId === chunkData.payload.chunk.fileId
+    )?.localStoragePath + `_chunk_${chunkData.payload.chunk.chunkIndex}`;
+  if (tempChunkFilePath) {
+    fs.unlink(tempChunkFilePath).catch(() => {
+      // ignore errors
+    });
+  }
+
   const associatedElement = info.transfersInProgress.find(
     (el) => el.fileId === chunkData.payload.chunk.fileId
   );

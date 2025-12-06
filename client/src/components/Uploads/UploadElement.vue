@@ -7,25 +7,57 @@
     clear-icon="mdi-close"
     :clearable="!isUploading"
     :disable="isUploading"
-    :rules="[
-      () => (file ? true : 'Please select a file to upload.'),
-      () => (isFileSafeToUpload ? true : 'This file already exists in your documents.'),
-    ]"
+    :rules="[() => (file ? true : 'Please select a file to upload.')]"
+    :hint="calculatingChecksum ? 'Calculating checksum. Pleae wait...' : ''"
   >
-    <q-tooltip v-if="file && checksumSHA512" style="word-wrap: break-word" max-width="200px">
-      SHA-512: {{ checksumSHA512 }}
+    <template v-slot:file="{ file }">
+      <template v-if="file">
+        <div class="col">
+          <div class="text-bold">
+            {{
+              file.name.length > 30
+                ? file.name.slice(0, 15) + '...' + file.name.slice(-10)
+                : file.name
+            }}
+          </div>
+        </div>
+      </template>
+    </template>
+    <q-tooltip
+      v-if="file"
+      style="white-space: normal; overflow-wrap: break-word; border-radius: 16px"
+      max-width="200px"
+      class="bg-black fg-white"
+    >
+      <div>
+        <u>File Name:</u><br />{{ file.name }}<br /><br />
+        <u>File Size:</u><br />{{ formatFileSizeISO(file.size, 3) }}<br /><br />
+        <u>File Type:</u><br />{{ file.type }}<br /><br />
+        <u>SHA-512:</u><br />{{ checksumSHA512 ? checksumSHA512 : 'Calculating...' }}
+      </div>
     </q-tooltip>
     <template #prepend>
-      <q-icon name="mdi-file-document-outline" />
+      <q-icon name="mdi-file-document-outline" v-if="!calculatingChecksum" />
+      <q-circular-progress
+        v-else
+        size="sm"
+        dense
+        :indeterminate="checksumProgress <= 0"
+        :value="checksumProgress"
+        :thickness="0.2"
+        color="primary"
+        track-color="grey-3"
+      />
     </template>
     <template #after>
       <q-btn
-        :disable="!file || isUploading || !checksumSHA512 || !isFileSafeToUpload"
+        :disable="!isUploadEnabled"
+        :color="isUploadEnabled ? 'primary' : 'negative'"
         v-if="!isUploading"
         flat
         round
         dense
-        icon="mdi-cloud-upload-outline"
+        :icon="isUploadEnabled ? 'mdi-cloud-upload-outline' : 'mdi-alert-outline'"
         @click="uploadFile()"
       />
       <q-btn v-else flat round dense @click="stopUpload">
@@ -54,9 +86,14 @@ import { computed, ref, watch } from 'vue';
 import { createSHA512 } from 'hash-wasm';
 import { useGskPkgFileStore } from 'src/services/gsk-packages/file-handling/client/store/file-store';
 import { useAuthStore } from 'src/stores/auth-store';
+import { useSocketStore } from 'src/stores/socket-store';
+import type { GSK_CS_DOCUMENT_UPLOAD_REQUEST } from 'src/services/library/types/data-transfer/documents';
+import { getFileMeta } from 'src/services/gsk-packages/file-handling/client/utils/file';
+import { formatFileSizeISO } from 'src/services/utils/file';
 
 const gskPkgFileStore = useGskPkgFileStore();
 const authStore = useAuthStore();
+const socketStore = useSocketStore();
 const file = ref<File | null>(null);
 
 const isUploading = ref(false);
@@ -81,55 +118,36 @@ const uploadFile = () => {
 };
 
 const checksumSHA512 = ref<string>('');
-const progress = ref<number>(0);
+const checksumProgress = ref<number>(0);
+const calculatingChecksum = ref<boolean>(false);
+const currentHashJob = ref(0);
 
 watch(
   () => file.value,
-  (newFile) => {
-    progress.value = 0;
-    if (newFile) {
+  async (newFile) => {
+    // CANCEL previous hash
+    currentHashJob.value++;
+
+    checksumProgress.value = 0;
+
+    if (!newFile) {
       checksumSHA512.value = '';
-      setTimeout(() => {
-        calculateSha512(newFile).catch((error) => {
-          console.error('Error calculating SHA-512 hash:', error);
-        });
-      }, 100);
-    } else {
-      checksumSHA512.value = '';
+      return;
     }
+
+    const thisJobId = currentHashJob.value;
+    calculatingChecksum.value = true;
+
+    const result = await calculateSha512(newFile, thisJobId);
+
+    // Only apply result if STILL the latest job
+    if (result.jobId === currentHashJob.value) {
+      checksumSHA512.value = result.hash;
+    }
+
+    calculatingChecksum.value = false;
   },
 );
-
-async function calculateSha512(file: File | null): Promise<void> {
-  if (!file) return;
-
-  checksumSHA512.value = '';
-  progress.value = 0;
-
-  checksumSHA512.value = await hashLargeFile(file);
-}
-
-async function hashLargeFile(file: File): Promise<string> {
-  const sha = await createSHA512();
-  sha.init();
-
-  const reader = file.stream().getReader(); // Pure binary stream
-  let bytesRead = 0;
-  const total = file.size;
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    // value is a Uint8Array — safe binary
-    sha.update(value);
-
-    bytesRead += value.length;
-    progress.value = (bytesRead / total) * 100;
-  }
-
-  return sha.digest(); // pure hex string
-}
 
 const isFileSafeToUpload = computed(() => {
   if (!checksumSHA512.value) return false;
@@ -168,10 +186,60 @@ watch(
       // emit event to parent component
       emit('upload-completed', uploadEntry.fileId);
       // Send information to server to copy the file to user's documents
-      // TODO: Implement this functionality as needed
+      const element: GSK_CS_DOCUMENT_UPLOAD_REQUEST = {
+        id: 'GSK_CS_DOCUMENT_UPLOAD_REQUEST',
+        payload: {
+          fileId: uploadEntry.fileId,
+          userId: authStore.userDetails?.id || '',
+          fileMeta: getFileMeta(file.value!, checksumSHA512.value),
+        },
+      };
+      socketStore.emit('GSK_CS_DOCUMENT_UPLOAD_REQUEST', element);
       resetAll();
     }
   },
   { deep: true },
 );
+
+const isUploadEnabled = computed(() => {
+  return !!file.value && !isUploading.value && !!checksumSHA512.value && isFileSafeToUpload.value;
+});
+
+// checksum calculation using hash-wasm
+
+async function calculateSha512(
+  file: File,
+  jobId: number,
+): Promise<{ hash: string; jobId: number }> {
+  try {
+    const sha = await createSHA512();
+    sha.init();
+
+    const total = file.size;
+    let offset = 0;
+
+    while (offset < total) {
+      // CANCEL if another job started
+      if (jobId !== currentHashJob.value) {
+        console.log('Checksum cancelled');
+        return { hash: '', jobId };
+      }
+
+      const end = Math.min(offset + 1024 * 1024, total); // 1 MB chunks
+      const chunk = await file.slice(offset, end).arrayBuffer();
+      sha.update(new Uint8Array(chunk));
+
+      offset = end;
+      checksumProgress.value = (offset / total) * 100;
+
+      // yield back to browser
+      await new Promise(requestAnimationFrame);
+    }
+
+    return { hash: sha.digest(), jobId };
+  } catch (err) {
+    console.error('Hash error:', err);
+    return { hash: '', jobId };
+  }
+}
 </script>
