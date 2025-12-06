@@ -1,7 +1,7 @@
 <template>
-  <AuthRequiredElement>
+  <auth-required-element>
     <q-page class="row items-center justify-evenly">My settings page</q-page>
-  </AuthRequiredElement>
+  </auth-required-element>
 </template>
 
 <script setup lang="ts">

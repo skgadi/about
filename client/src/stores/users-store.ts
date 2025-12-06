@@ -44,6 +44,17 @@ export const useUsersStore = defineStore('users', {
     resetUserDetails() {
       this.userFullDetails = null;
     },
+
+    getUserIdFromUrlId(urlUserId: string): string {
+      // urlUserId is either id or username
+      const user = this.listOfUsers.find((user) => {
+        if (user.id === urlUserId || user.username === urlUserId) {
+          return true;
+        }
+        return false;
+      });
+      return user ? user.id : ''; // return empty string if not found
+    },
   },
 });
 if (import.meta.hot) {
