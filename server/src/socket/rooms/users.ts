@@ -99,11 +99,9 @@ class usersRoomRoutines {
 
     // Emit to specific socket or broadcast to room
     if (socket) {
-      socket.emit("GSK_APP_VAR_USERS_LIST_UPDATE", payload);
+      socket.emit("GSK_SC_USER_LIST_UPDATE", payload);
     } else {
-      this.io
-        .to("users-list-room")
-        .emit("GSK_APP_VAR_USERS_LIST_UPDATE", payload);
+      this.io.to("users-list-room").emit("GSK_SC_USER_LIST_UPDATE", payload);
     }
   }
 
@@ -139,11 +137,11 @@ class usersRoomRoutines {
 
     // Emit to specific socket or broadcast to room
     if (socket) {
-      socket.emit("GSK_APP_VAR_USER_PUBLIC_DETAILS_UPDATE", payload);
+      socket.emit("GSK_SC_USER_PUBLIC_DETAILS_UPDATE", payload);
     } else {
       this.io
         .to(`user-details-public-room-${userId}`)
-        .emit("GSK_APP_VAR_USER_PUBLIC_DETAILS_UPDATE", payload);
+        .emit("GSK_SC_USER_PUBLIC_DETAILS_UPDATE", payload);
     }
   }
 
@@ -178,11 +176,11 @@ class usersRoomRoutines {
 
     // Emit to specific socket or broadcast to room
     if (socket) {
-      socket.emit("GSK_APP_VAR_USER_SELF_DETAILS_UPDATE", payload);
+      socket.emit("GSK_SC_USER_SELF_DETAILS_UPDATE", payload);
     } else {
       this.io
         .to(`user-details-self-room-${userId}`)
-        .emit("GSK_APP_VAR_USER_SELF_DETAILS_UPDATE", payload);
+        .emit("GSK_SC_USER_SELF_DETAILS_UPDATE", payload);
     }
   }
 

@@ -8,6 +8,7 @@ import { useAuthStore } from 'src/stores/auth-store';
 import appSettings from './events/settings';
 import authEvents from './events/auth';
 import notificationsEvents from './events/notifications';
+import users from './events/users';
 import fileHandlingEvents from 'src/services/gsk-packages/file-handling/client/socket-event/events';
 
 class SocketioService {
@@ -51,6 +52,7 @@ class SocketioService {
       appSettings(label, ...args);
       authEvents(label, ...args);
       notificationsEvents(label, ...args);
+      users(label, ...args);
       fileHandlingEvents(label, ...args);
     });
   }

@@ -1,6 +1,7 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import type { GSK_USER_SELF_DETAILS } from 'src/services/library/types/structures/users';
 import { useGskPkgFileStore } from 'src/services/gsk-packages/file-handling/client/store/file-store';
+import { useUsersStore } from './users-store';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -23,6 +24,7 @@ export const useAuthStore = defineStore('auth', {
     signOut() {
       this.userDetails = null;
       useGskPkgFileStore().resetLocalMemory();
+      useUsersStore().resetUserDetails();
     },
     isSignedInAs(userId: string): boolean {
       return this.userDetails?.id === userId;

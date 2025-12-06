@@ -26,6 +26,17 @@ class UserFilesFolderUtils {
   getTempUploadFilePath(fileId: string): string {
     return path.join(this.getTempUploadsRoot(), fileId);
   }
+  async removeTempUploadFile(fileId: string): Promise<void> {
+    const tempFilePath = this.getTempUploadFilePath(fileId);
+    try {
+      await fs.unlink(tempFilePath);
+    } catch (error) {
+      logger.moderate(
+        `Error removing temp upload file ${tempFilePath}:`,
+        error
+      );
+    }
+  }
   async getUserFolderPath(userId: string): Promise<string> {
     const userFolderPath = path.join(uploadsRoot, userId);
     // if not exists, create it
@@ -74,6 +85,7 @@ class UserFilesFolderUtils {
 
       const sha512OfTemp = await getFileChecksumWithAwait(tempPath, "sha512");
       if (sha512OfTemp !== sha512Hash) {
+        await this.removeTempUploadFile(fileId);
         return {
           finalPath: "",
           success: false,

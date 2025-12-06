@@ -8,7 +8,7 @@
     :clearable="!isUploading"
     :disable="isUploading"
     :rules="[() => (file ? true : 'Please select a file to upload.')]"
-    :hint="calculatingChecksum ? 'Calculating checksum. Pleae wait...' : ''"
+    :hint="hintText"
   >
     <template v-slot:file="{ file }">
       <template v-if="file">
@@ -37,7 +37,7 @@
       </div>
     </q-tooltip>
     <template #prepend>
-      <q-icon name="mdi-file-document-outline" v-if="!calculatingChecksum" />
+      <q-icon :name="fileIcon" v-if="!calculatingChecksum" />
       <q-circular-progress
         v-else
         size="sm"
@@ -85,14 +85,14 @@ const emit = defineEmits<{
 import { computed, ref, watch } from 'vue';
 import { createSHA512 } from 'hash-wasm';
 import { useGskPkgFileStore } from 'src/services/gsk-packages/file-handling/client/store/file-store';
-import { useAuthStore } from 'src/stores/auth-store';
+import { useUsersStore } from 'src/stores/users-store';
 import { useSocketStore } from 'src/stores/socket-store';
 import type { GSK_CS_DOCUMENT_UPLOAD_REQUEST } from 'src/services/library/types/data-transfer/documents';
 import { getFileMeta } from 'src/services/gsk-packages/file-handling/client/utils/file';
 import { formatFileSizeISO } from 'src/services/utils/file';
 
 const gskPkgFileStore = useGskPkgFileStore();
-const authStore = useAuthStore();
+const usersStore = useUsersStore();
 const socketStore = useSocketStore();
 const file = ref<File | null>(null);
 
@@ -149,12 +149,12 @@ watch(
   },
 );
 
-const isFileSafeToUpload = computed(() => {
+const doesADuplicateExists = computed(() => {
   if (!checksumSHA512.value) return false;
 
-  if (!authStore.userDetails) return false;
+  if (!usersStore.userFullDetails) return false;
 
-  const duplicateFile = authStore.userDetails.details.documents?.find(
+  const duplicateFile = usersStore.userFullDetails.details.documents?.find(
     (doc) => doc.checksumSHA512 === checksumSHA512.value,
   );
   // emit duplicate file found
@@ -190,7 +190,7 @@ watch(
         id: 'GSK_CS_DOCUMENT_UPLOAD_REQUEST',
         payload: {
           fileId: uploadEntry.fileId,
-          userId: authStore.userDetails?.id || '',
+          userId: usersStore.userFullDetails?.id || '',
           fileMeta: getFileMeta(file.value!, checksumSHA512.value),
         },
       };
@@ -202,7 +202,7 @@ watch(
 );
 
 const isUploadEnabled = computed(() => {
-  return !!file.value && !isUploading.value && !!checksumSHA512.value && isFileSafeToUpload.value;
+  return !!file.value && !isUploading.value && !!checksumSHA512.value && doesADuplicateExists.value;
 });
 
 // checksum calculation using hash-wasm
@@ -242,4 +242,36 @@ async function calculateSha512(
     return { hash: '', jobId };
   }
 }
+
+const hintText = computed(() => {
+  if (calculatingChecksum.value) {
+    return 'Calculating checksum. Please wait...';
+  }
+  if (!file.value) {
+    return 'Please select a file to upload.';
+  }
+  if (!doesADuplicateExists.value) {
+    return 'This file is already exists in your documents.';
+  }
+  return '';
+});
+
+const fileIcon = computed(() => {
+  if (!file.value) return 'mdi-file-hidden';
+  switch (file.value.type) {
+    case 'application/pdf':
+      return 'mdi-file-pdf-box';
+    case 'image/jpeg':
+    case 'image/png':
+      return 'mdi-file-image';
+    case 'application/msword':
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+      return 'mdi-file-word-box';
+    case 'application/vnd.ms-excel':
+    case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+      return 'mdi-file-excel-box';
+    default:
+      return 'mdi-file-document-outline';
+  }
+});
 </script>

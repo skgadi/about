@@ -1,4 +1,4 @@
-import { notifyErrorToClient } from "services/utils/notificatons-to-client.js";
+import { notifyErrorToClient } from "../../services/utils/notificatons-to-client.js";
 import { GSK_CS_DOCUMENT_UPLOAD_REQUEST } from "../../services/library/types/data-transfer/documents.js";
 import { signedInStore } from "../../socket/payloads/signed-in-db.js";
 import { getDatabase } from "../../db/initialization.js";
@@ -14,8 +14,8 @@ import {
   GSK_USER_DETAILS,
   GSK_USER_LOG,
 } from "../../services/library/types/structures/users.js";
-import filesFolder from "services/utils/users/files-folder.js";
-import { usersRoom } from "socket/rooms/users.js";
+import filesFolder from "../../services/utils/users/files-folder.js";
+import { usersRoom } from "../../socket/rooms/users.js";
 
 export const routines = (io: any, socket: any) => {
   socket.on(
@@ -53,6 +53,7 @@ export const routines = (io: any, socket: any) => {
           (doc) => doc.checksumSHA512 === fileMeta.sha512Hash
         );
         if (documentExists) {
+          await filesFolder.removeTempUploadFile(fileId);
           notifyErrorToClient(
             socket,
             "Document Upload Error",
