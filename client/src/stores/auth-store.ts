@@ -29,6 +29,12 @@ export const useAuthStore = defineStore('auth', {
     isSignedInAs(userId: string): boolean {
       return this.userDetails?.id === userId;
     },
+    isAuthorizedToEdit(userId: string): boolean {
+      if (this.userDetails?.isAdmin) {
+        return true;
+      }
+      return this.userDetails?.id === userId;
+    },
   },
 });
 if (import.meta.hot) {

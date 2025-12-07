@@ -28,6 +28,8 @@ const props = defineProps<{
   isSuperAdminView?: boolean;
 }>();
 
+import SignInForm from 'src/components/Auth/SignInForm.vue';
+
 import { useAuthStore } from 'src/stores/auth-store';
 import { useUsersStore } from 'src/stores/users-store';
 import { computed } from 'vue';

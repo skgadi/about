@@ -31,6 +31,8 @@ class usersRoomRoutines {
   }
 
   joinUserDetailsPublicRoom(socket: Socket, userId: string) {
+    // Leave any existing public details rooms
+    this.leaveUserDetailsPublicRoom(socket);
     socket.join(`user-details-public-room-${userId}`);
     this.emitUserPublicDetailsUpdate(socket, userId);
   }
@@ -44,6 +46,8 @@ class usersRoomRoutines {
   }
 
   joinUserDetailsSelfRoom(socket: Socket, userId: string) {
+    // Leave any existing self details rooms
+    this.leaveUserDetailsSelfRoom(socket);
     socket.join(`user-details-self-room-${userId}`);
     this.emitUserSelfDetailsUpdate(socket, userId);
   }
