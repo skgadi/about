@@ -4,7 +4,7 @@
     outlined
     rounded
     dense
-    placeholder="Filter users by name, username, or ID"
+    placeholder="Filter users by name, userName, or ID"
   />
 
   <br />
@@ -28,7 +28,7 @@ const filteredUsers = computed(() => {
   return usersStore.listOfUsers.filter((user) => {
     return (
       user?.displayName?.toLowerCase().includes(filter.value.toLowerCase()) ||
-      user?.username?.toLowerCase().includes(filter.value.toLowerCase()) ||
+      user?.userName?.toLowerCase().includes(filter.value.toLowerCase()) ||
       user?.id?.toLowerCase().includes(filter.value.toLowerCase()) ||
       user?.name?.toLowerCase().includes(filter.value.toLowerCase())
     );

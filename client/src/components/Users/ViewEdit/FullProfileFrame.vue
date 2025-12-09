@@ -40,8 +40,6 @@ const selectedUser = computed(() => {
       return usersStore.userFullDetails;
     }
   } else {
-    console.log('Determining selected user for ID:', userId, typeof userId);
-    console.log('Public User ID:', usersStore.publicUserId, typeof usersStore.publicUserId);
     if (usersStore.publicUserId === userId) {
       return usersStore.userPublicDetails;
     }

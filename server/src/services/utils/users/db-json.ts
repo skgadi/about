@@ -11,7 +11,7 @@ import {
 export const dbToJson = (db: GSK_USER_DB): GSK_USER => {
   const output: GSK_USER = {
     id: db.id,
-    username: db.username || "",
+    userName: db.userName || "",
     avatarUrl: db.avatarUrl || "",
     name: db.name || "",
     displayName: db.displayName || "",
@@ -40,7 +40,7 @@ export const dbToJsonUserSummary = (
 ): GSK_USER_PUBLIC_SUMMARY => {
   const output: GSK_USER_PUBLIC_SUMMARY = {
     id: db.id,
-    username: db.username || "",
+    userName: db.userName || "",
     avatarUrl: db.avatarUrl || "",
     name: db.name || "",
     displayName: db.displayName || "",
@@ -66,7 +66,7 @@ export const dbToJsonUserServerSummary = (
     avatarUrl: dbUsers.avatarUrl || "",
     displayName: dbUsers.displayName || "",
     name: dbUsers.name || "",
-    username: dbUsers.username || "",
+    userName: dbUsers.userName || "",
     email: dbUsers.email || "",
   };
   return output;
@@ -77,7 +77,7 @@ export const dbToJsonUserPublicDetails = (
 ): GSK_USER_PUBLIC_DETAILS => {
   const output: GSK_USER_PUBLIC_DETAILS = {
     id: dbUser.id,
-    username: dbUser.username || "",
+    userName: dbUser.userName || "",
     avatarUrl: dbUser.avatarUrl || "",
     name: dbUser.name || "",
     displayName: dbUser.displayName || "",
@@ -92,7 +92,7 @@ export const dbToJsonUserSelf = (
 ): GSK_USER_SELF_DETAILS => {
   const output: GSK_USER_SELF_DETAILS = {
     id: dbUser.id,
-    username: dbUser.username || "",
+    userName: dbUser.userName || "",
     avatarUrl: dbUser.avatarUrl || "",
     name: dbUser.name || "",
     displayName: dbUser.displayName || "",
@@ -159,7 +159,7 @@ const keepOnlyPublicDetails = (
 export const jsonToDbUser = (user: GSK_USER): GSK_USER_DB => {
   const output: GSK_USER_DB = {
     id: user.id,
-    username: user.username || "",
+    userName: user.userName || "",
     avatarUrl: user.avatarUrl || "",
     name: user.name || "",
     displayName: user.displayName || "",

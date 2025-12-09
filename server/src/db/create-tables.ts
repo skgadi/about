@@ -20,13 +20,13 @@ export const createTables = () => {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY, -- uuid
-      username TEXT UNIQUE,
+      userName TEXT UNIQUE COLLATE NOCASE COLLATE RTRIM,
       avatarUrl TEXT,
       name TEXT,
       displayName TEXT ,
       roles TEXT NOT NULL DEFAULT '[]',
       details TEXT NOT NULL DEFAULT '{"metaInfo": {}}',
-      email TEXT UNIQUE,
+      email TEXT UNIQUE COLLATE NOCASE COLLATE RTRIM,
       status TEXT NOT NULL DEFAULT 'created',
       isAdmin INTEGER NOT NULL DEFAULT 0, -- boolean
       isSuperAdmin INTEGER NOT NULL DEFAULT 0, -- boolean
@@ -77,12 +77,12 @@ export const initialSuperAdminSetup = () => {
   db.prepare(
     `
     INSERT INTO users (
-      id, username, email, status, isAdmin, isSuperAdmin, passwordHash, createdBy, updatedBy, registeredAt
+      id, userName, email, status, isAdmin, isSuperAdmin, passwordHash, createdBy, updatedBy, registeredAt
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
   `
   ).run(
     id,
-    NodeSpecificUtils.getEnvVariable("DEFAULT_USERNAME", "skgadi"),
+    NodeSpecificUtils.getEnvVariable("DEFAULT_userName", "skgadi"),
     defaultAdminEmail,
     "active",
     1,

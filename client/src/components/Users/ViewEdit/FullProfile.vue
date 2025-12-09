@@ -4,9 +4,24 @@
       <div class="q-pa-md text-center">
         <profile-pic :editable="editable" size="128px" />
         <div class="text-h6 q-mt-sm">
-          {{ selectedUser.displayName || selectedUser.name || 'Unnamed User' }}
+          <text-field
+            :html-text="selectedUser.displayName || selectedUser.name || 'Unnamed User'"
+            :editable="editable"
+            field-to-update="displayName"
+            :user-id="selectedUser.id"
+            this-class="text-h6"
+          />
         </div>
-        <div class="text-caption">@{{ selectedUser.username }}</div>
+        <div class="text-caption">
+          <span>@</span>
+          <text-field
+            :html-text="selectedUser.userName || 'no-userName'"
+            :editable="editable"
+            field-to-update="userName"
+            :user-id="selectedUser.id"
+            this-class="text-caption"
+          />
+        </div>
       </div>
       <div class="q-pa-md" style="width: 400px">
         <upload-element />
@@ -25,23 +40,28 @@
 </template>
 
 <script setup lang="ts">
-const props = withDefaults(
-  defineProps<{
-    editable: boolean; // Optional (because of ?)
-    selectedUser: GSK_USER_PUBLIC_DETAILS | GSK_USER_SELF_DETAILS | null; // Required (no ?)
-  }>(),
-  {
-    editable: false, // Default value
+const props = defineProps({
+  editable: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
-);
+  selectedUser: {
+    type: [Object, null] as PropType<GSK_USER_PUBLIC_DETAILS | GSK_USER_SELF_DETAILS | null>,
+    required: true,
+    default: null,
+  },
+});
 
+import TextField from 'src/components/Users/ViewEdit/Elements/TextField.vue';
 import ProfilePic from 'src/components/Users/ViewEdit/Elements/ProfilePic.vue';
 import UploadElement from 'src/components/Uploads/UploadElement.vue';
 
 import { useUsersStore } from 'src/stores/users-store';
 import { useSocketStore } from 'src/stores/socket-store';
 import { useRoute } from 'vue-router';
-import { defineProps, onMounted, watch } from 'vue';
+import type { PropType } from 'vue';
+import { onMounted, watch } from 'vue';
 import type {
   GSK_USER_PUBLIC_DETAILS,
   GSK_USER_SELF_DETAILS,
@@ -75,7 +95,7 @@ onMounted(() => {
 const requestUserDetails = () => {
   const userId = usersStore.getUserIdFromUrlId(route.params.urlUserId as string);
   if (!userId) return;
-  console.log('requesting user details');
+
   if (props.editable) {
     const payload: GSK_CS_USER_SELF_DETAILS_REQUEST = {
       id: 'GSK_CS_USER_SELF_DETAILS_REQUEST',
@@ -87,7 +107,7 @@ const requestUserDetails = () => {
       id: 'GSK_CS_USER_PUBLIC_DETAILS_REQUEST',
       payload: { userId: userId },
     };
-    console.log('emitting public details request for', userId);
+
     socketStore.emit('GSK_CS_USER_PUBLIC_DETAILS_REQUEST', payload);
   }
 };

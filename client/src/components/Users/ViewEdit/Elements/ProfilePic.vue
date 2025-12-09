@@ -2,10 +2,25 @@
   <q-avatar
     :style="isEditable ? 'cursor: pointer;' : ''"
     :size="size"
-    v-ripple
+    :v-ripple="isEditable"
     @click="(evt: Event) => (isEditable ? ($refs?.inputForFile as QFile)?.pickFiles(evt) : null)"
   >
-    <img :src="profilePicUrl" alt="Profile Picture" />
+    <q-img :src="profilePicUrl" alt="Profile Picture">
+      <template v-if="isEditable">
+        <q-icon
+          class="absolute-center"
+          style="
+            border-radius: 50%;
+            padding: 2px;
+            margin: 0px;
+            background-color: rgba(255, 255, 255, 0.55);
+            color: rgba(0, 0, 0, 0.75);
+          "
+          size="xs"
+          name="mdi-pencil-outline"
+        />
+      </template>
+    </q-img>
   </q-avatar>
   <q-file
     ref="inputForFile"
@@ -88,6 +103,5 @@ const onFileChange = async () => {
   };
   socketStore.emit('GSK_CS_USER_ROOT_PIC', payload);
   imageFile.value = null;
-  console.log('Profile pic upload emitted');
 };
 </script>

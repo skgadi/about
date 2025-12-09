@@ -424,7 +424,7 @@ export interface GSK_USER_DETAILS {
 
 export interface GSK_USER_PUBLIC_SUMMARY {
   id: string;
-  username?: string;
+  userName?: string;
   avatarUrl?: string;
   name?: string;
   displayName?: string;
@@ -559,7 +559,7 @@ export type GSK_USER_STATUSES =
    ======================================================================== */
 
 export interface GSK_USER_SELF_DETAILS extends GSK_USER_PUBLIC_DETAILS {
-  email?: string;
+  email: string;
   status: GSK_USER_STATUSES;
   isAdmin: boolean;
   isSuperAdmin: boolean;
@@ -599,7 +599,7 @@ export interface GSK_USER_SERVER_SUMMARY extends GSK_USER_PUBLIC_SUMMARY {
 
 export interface GSK_USER_DB {
   id: string;
-  username?: string;
+  userName?: string;
   avatarUrl?: string;
   name?: string;
   displayName?: string;
