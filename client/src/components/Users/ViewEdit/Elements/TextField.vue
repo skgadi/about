@@ -72,11 +72,13 @@ const props = defineProps({
   },
   userId: {
     type: String,
-    required: true,
+    required: false,
+    default: '',
   },
   fieldToUpdate: {
     type: String,
-    required: true,
+    required: false,
+    default: '',
   },
   allowEmpty: {
     type: Boolean,
@@ -98,13 +100,18 @@ const props = defineProps({
     required: false,
     default: '',
   },
+  idx: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
 });
 
-import { ref, watch } from 'vue';
-import { useSocketStore } from 'src/stores/socket-store';
-import type { GSK_CS_USER_ROOT_FIELD } from 'src/services/library/types/data-transfer/user-root';
+const emit = defineEmits<{
+  (e: 'updated-text', newText: string, idx: number): void;
+}>();
 
-const socketStore = useSocketStore();
+import { ref, watch } from 'vue';
 
 const localHtmlText = ref(props.htmlText);
 watch(
@@ -122,15 +129,6 @@ const emitValue = () => {
   if (localHtmlText.value.trim() === props.htmlText.trim()) {
     return;
   }
-  // Emit to server
-  const payload: GSK_CS_USER_ROOT_FIELD = {
-    id: 'GSK_CS_USER_ROOT_FIELD',
-    payload: {
-      userId: props.userId,
-      fieldName: props.fieldToUpdate,
-      fieldValue: localHtmlText.value,
-    },
-  };
-  socketStore.emit('GSK_CS_USER_ROOT_FIELD', payload);
+  emit('updated-text', localHtmlText.value, props.idx);
 };
 </script>

@@ -11,7 +11,7 @@
         <div class="q-pa-md text-center" style="width: 350px">
           <div class="text-bold">Access Denied</div>
           <q-btn class="q-mt-sm" push rounded no-caps label="Sign in now" color="primary">
-            <q-menu>
+            <q-menu style="border-radius: 2em">
               <div class="q-pa-md" style="width: 300px">
                 <sign-in-form />
               </div>

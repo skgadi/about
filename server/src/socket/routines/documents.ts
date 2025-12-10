@@ -1,4 +1,7 @@
-import { notifyErrorToClient } from "../../services/utils/notificatons-to-client.js";
+import {
+  notifyErrorToClient,
+  notifySuccessToClient,
+} from "../../services/utils/notificatons-to-client.js";
 import { GSK_CS_DOCUMENT_UPLOAD_REQUEST } from "../../services/library/types/data-transfer/documents.js";
 import { signedInStore } from "../../socket/payloads/signed-in-db.js";
 import { getDatabase } from "../../db/initialization.js";
@@ -87,7 +90,9 @@ export const routines = (io: any, socket: any) => {
             checksumSHA512: fileMeta.sha512Hash,
             uploadedAt: new Date().toISOString(),
             extension: fileMeta.extension,
-            metaInfo: {},
+            metaInfo: {
+              title: fileMeta.fileName,
+            },
             serverFileName: finalPath,
             serverFilePath: userFolderPath,
           };
@@ -127,6 +132,13 @@ export const routines = (io: any, socket: any) => {
 
           // Update the user details and log in the database
           usersRoom.emitUserSelfDetailsUpdate(null, userId);
+
+          // Inform clint
+          notifySuccessToClient(
+            socket,
+            "Document Upload Success",
+            "Document uploaded successfully."
+          );
         } catch (error) {
           await filesFolder.deleteUserDocumentFile(userId, fileId);
         }

@@ -1,10 +1,10 @@
 <template>
-  <div style="max-width: 500px; margin: auto">
+  <div class="q-py-lg" style="max-width: 800px; width: 100%; margin: auto">
     <template v-if="selectedUser">
-      <div class="q-pa-md text-center">
+      <div class="text-center">
         <profile-pic :editable="editable" size="128px" />
         <div class="text-h6 q-mt-sm">
-          <text-field
+          <root-text-field
             :html-text="selectedUser.displayName || selectedUser.name || 'Unnamed User'"
             :editable="editable"
             field-to-update="displayName"
@@ -14,7 +14,7 @@
         </div>
         <div class="text-caption">
           <span>@</span>
-          <text-field
+          <root-text-field
             :html-text="selectedUser.userName || 'no-userName'"
             :editable="editable"
             field-to-update="userName"
@@ -22,10 +22,16 @@
             this-class="text-caption"
           />
         </div>
+        <div class="text-caption" v-if="(selectedUser as GSK_USER_SELF_DETAILS)?.email">
+          {{ (selectedUser as GSK_USER_SELF_DETAILS)?.email || 'no-email' }}
+        </div>
+        <display-roles
+          :roles="selectedUser.roles || []"
+          :editable="editable"
+          :user-id="selectedUser.id"
+        />
       </div>
-      <div class="q-pa-md" style="width: 400px">
-        <upload-element />
-      </div>
+      <documents-frame :selected-user="selectedUser" :editable="editable" />
     </template>
     <template v-else>
       <div class="text-center" style="padding-top: 64px">
@@ -53,9 +59,10 @@ const props = defineProps({
   },
 });
 
-import TextField from 'src/components/Users/ViewEdit/Elements/TextField.vue';
+import DocumentsFrame from 'src/components/Users/ViewEdit/Documents/DocumentsFrame.vue';
+import DisplayRoles from 'src/components/Users/ViewEdit/Elements/DisplayRoles.vue';
+import RootTextField from 'src/components/Users/ViewEdit/Elements/RootTextField.vue';
 import ProfilePic from 'src/components/Users/ViewEdit/Elements/ProfilePic.vue';
-import UploadElement from 'src/components/Uploads/UploadElement.vue';
 
 import { useUsersStore } from 'src/stores/users-store';
 import { useSocketStore } from 'src/stores/socket-store';

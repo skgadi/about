@@ -28,3 +28,26 @@ export function formatFileSizeISO(bytes: number, decimals: number = 2): string {
 
   return `${formattedSize} ${sizes[i]}`;
 }
+
+export const fileIcon = (file: File | null | undefined) => {
+  return fileIconFromMimeType(file?.type);
+};
+
+export const fileIconFromMimeType = (mimeType: string | null | undefined) => {
+  if (!mimeType) return 'mdi-file-hidden';
+  switch (mimeType) {
+    case 'application/pdf':
+      return 'mdi-file-pdf-box';
+    case 'image/jpeg':
+    case 'image/png':
+      return 'mdi-file-image';
+    case 'application/msword':
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+      return 'mdi-file-word-box';
+    case 'application/vnd.ms-excel':
+    case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+      return 'mdi-file-excel-box';
+    default:
+      return 'mdi-file-document-outline';
+  }
+};

@@ -37,7 +37,7 @@
       </div>
     </q-tooltip>
     <template #prepend>
-      <q-icon :name="fileIcon" v-if="!calculatingChecksum" />
+      <q-icon :name="docIcon" v-if="!calculatingChecksum" />
       <q-circular-progress
         v-else
         size="sm"
@@ -89,7 +89,7 @@ import { useUsersStore } from 'src/stores/users-store';
 import { useSocketStore } from 'src/stores/socket-store';
 import type { GSK_CS_DOCUMENT_UPLOAD_REQUEST } from 'src/services/library/types/data-transfer/documents';
 import { getFileMeta } from 'src/services/gsk-packages/file-handling/client/utils/file';
-import { formatFileSizeISO } from 'src/services/utils/file';
+import { fileIcon, formatFileSizeISO } from 'src/services/utils/file';
 
 const gskPkgFileStore = useGskPkgFileStore();
 const usersStore = useUsersStore();
@@ -256,22 +256,7 @@ const hintText = computed(() => {
   return '';
 });
 
-const fileIcon = computed(() => {
-  if (!file.value) return 'mdi-file-hidden';
-  switch (file.value.type) {
-    case 'application/pdf':
-      return 'mdi-file-pdf-box';
-    case 'image/jpeg':
-    case 'image/png':
-      return 'mdi-file-image';
-    case 'application/msword':
-    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-      return 'mdi-file-word-box';
-    case 'application/vnd.ms-excel':
-    case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-      return 'mdi-file-excel-box';
-    default:
-      return 'mdi-file-document-outline';
-  }
+const docIcon = computed(() => {
+  return fileIcon(file.value);
 });
 </script>
