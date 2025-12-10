@@ -9,6 +9,11 @@ import { prepareSocketServer } from "./main-socket.js";
 import { GSK_APP_GLOBAL_CONSTANT_PORT } from "./services/library/constants/app-init.js";
 import NodeSpecificUtils from "./services/utils/node-specific.js";
 import { logger } from "./services/utils/logging.js";
+import { fileURLToPath } from "url";
+import { isAValidDownloadRequest } from "./socket/payloads/download-files.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * This function starts the static server with Socket.IO support.
@@ -50,6 +55,33 @@ export const startStaticServerWithSocket = () => {
 
     res.json({
       socketServerUrl: socketServerUrl,
+    });
+  });
+
+  app.get("/download/:userId/:fileId/:mySocketId", async (req, res) => {
+    const { userId, fileId, mySocketId } = req.params;
+    const fileName = await isAValidDownloadRequest(userId, fileId, mySocketId);
+    if (!fileName) {
+      return res
+        .status(403)
+        .send("You are not authorized to download this file.");
+    }
+
+    const filePath = path.join(
+      NodeSpecificUtils.getProjectRoot(),
+      "data",
+      "uploads",
+      userId,
+      fileId
+    );
+
+    res.download(filePath, fileName, (err) => {
+      if (err) {
+        logger.critical(
+          `Error sending file ${fileId} for user ${userId}: ${err}`
+        );
+        res.status(500).send("Error downloading the file.");
+      }
     });
   });
 

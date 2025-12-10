@@ -38,7 +38,14 @@
       </q-item-section>
       <q-item-section align="top" side>
         <div>
-          <q-btn size="sm" flat round dense icon="mdi-cloud-download-outline" />
+          <q-btn
+            size="sm"
+            flat
+            round
+            dense
+            icon="mdi-cloud-download-outline"
+            @click="downloadADocument(userId, document.id)"
+          />
           <q-btn
             size="sm"
             flat
@@ -93,9 +100,19 @@ import TextField from 'src/components/Users/ViewEdit/Elements/TextField.vue';
 import { computed, type PropType } from 'vue';
 import type { GSK_DOCUMENT } from 'src/services/library/types/structures/users';
 import { fileIconFromMimeType } from 'src/services/utils/file';
+import { downloadADocument } from 'src/services/utils/url';
+import { useUsersStore } from 'src/stores/users-store';
+import { useRoute } from 'vue-router';
+
+const usersStore = useUsersStore();
+const route = useRoute();
 
 const docIcon = computed(() => {
   // Determine icon based on document type or other properties
   return fileIconFromMimeType(props.document.mimeType);
+});
+
+const userId = computed(() => {
+  return usersStore.getUserIdFromUrlId(route.params.urlUserId as string);
 });
 </script>

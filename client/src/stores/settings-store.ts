@@ -52,10 +52,14 @@ export const useSettingsStore = defineStore('settings', {
   state: () => ({
     constants: getAvailableConstantSettingsFromCookies(),
     variables: getAvailableVariableSettingsFromCookies(),
-    socketServerUrl: 'localhost:3333', // Default socket server URL
+    socketServerUrl: '//localhost:3333', // Default socket server URL
   }),
 
-  getters: {},
+  getters: {
+    downloadpath: (state) => {
+      return state.socketServerUrl + '/download/';
+    },
+  },
 
   actions: {
     setSocketServerUrl(url: string) {

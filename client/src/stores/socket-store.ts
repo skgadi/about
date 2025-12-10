@@ -46,6 +46,10 @@ export const useSocketStore = defineStore('socketStore', () => {
     emit('GSK_APP_INIT');
   }
 
+  function getSocketId() {
+    return SocketioService.socket?.id || null;
+  }
+
   return {
     isConnected,
     sentActivity,
@@ -60,5 +64,6 @@ export const useSocketStore = defineStore('socketStore', () => {
     resubscribeAll,
     isServerConnectedToInternet,
     setServerConnectedToInternet,
+    getSocketId,
   };
 });
