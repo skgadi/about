@@ -6,6 +6,7 @@ import { logger } from "./services/utils/logging.js";
 import { init as initSocketPaylods } from "./socket/payloads/index.js";
 import { gskPkgFileHandlingServerIndex } from "./services/gsk-packages/file-handling/server/index.js";
 import fileFolderUtils from "./services/utils/users/files-folder.js";
+import { signedInStore } from "./socket/payloads/signed-in-db.js";
 
 export const prepareSocketServer = (
   server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
@@ -41,6 +42,7 @@ export const prepareSocketServer = (
     // Handle disconnection
     socket.on("disconnect", () => {
       fileHandlingServer.socketDisconnected(socket.id);
+      signedInStore.handleSocketDisconnection(socket.id);
       logger.verbose("User disconnected");
     });
   });

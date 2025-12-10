@@ -39,6 +39,11 @@ class SignedInStore {
     return true;
   }
 
+  /** When socket is disconencted */
+  handleSocketDisconnection(socketId: string) {
+    this.signOut(socketId);
+  }
+
   /** Force sign out on other sockets, then sign in here */
   signOutOthersAndSignIn(socketId: string, user: User): boolean {
     const previousSocket = this.userToSocket.get(user.id);

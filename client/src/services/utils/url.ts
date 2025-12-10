@@ -31,3 +31,14 @@ export function downloadADocument(userId: string, fileId: string) {
     console.error('Unable to prepare download URL. Socket ID may be missing.');
   }
 }
+
+export function prepareViewerURL(userId: string, fileId: string): string {
+  const mySocketId = socketStore.getSocketId();
+  if (!mySocketId) {
+    return '';
+  }
+  return (
+    settingsStore.viewerPath +
+    `${encodeURIComponent(userId)}/${encodeURIComponent(fileId)}/${encodeURIComponent(mySocketId)}`
+  );
+}

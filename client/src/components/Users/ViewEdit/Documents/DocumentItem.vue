@@ -67,13 +67,7 @@
         </div>
       </q-item-section>
     </template>
-    <q-card>
-      <q-card-section>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quidem, eius reprehenderit eos
-        corrupti commodi magni quaerat ex numquam, dolorum officiis modi facere maiores architecto
-        suscipit iste eveniet doloribus ullam aliquid.
-      </q-card-section>
-    </q-card>
+    <main-page :url="prepareViewerURL(userId, document.id)" :extension="document.extension" />
   </q-expansion-item>
 </template>
 <script setup lang="ts">
@@ -96,11 +90,12 @@ const props = defineProps({
 });
 
 import TextField from 'src/components/Users/ViewEdit/Elements/TextField.vue';
+import MainPage from 'src/components/Users/ViewEdit/Documents/Viewer/MainPage.vue';
 
 import { computed, type PropType } from 'vue';
 import type { GSK_DOCUMENT } from 'src/services/library/types/structures/users';
 import { fileIconFromMimeType } from 'src/services/utils/file';
-import { downloadADocument } from 'src/services/utils/url';
+import { downloadADocument, prepareViewerURL } from 'src/services/utils/url';
 import { useUsersStore } from 'src/stores/users-store';
 import { useRoute } from 'vue-router';
 

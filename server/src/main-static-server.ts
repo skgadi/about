@@ -11,6 +11,7 @@ import NodeSpecificUtils from "./services/utils/node-specific.js";
 import { logger } from "./services/utils/logging.js";
 import { fileURLToPath } from "url";
 import { isAValidDownloadRequest } from "./socket/payloads/download-files.js";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,32 +59,74 @@ export const startStaticServerWithSocket = () => {
     });
   });
 
-  app.get("/download/:userId/:fileId/:mySocketId", async (req, res) => {
-    const { userId, fileId, mySocketId } = req.params;
-    const fileName = await isAValidDownloadRequest(userId, fileId, mySocketId);
-    if (!fileName) {
-      return res
-        .status(403)
-        .send("You are not authorized to download this file.");
+  app.get(
+    "/download-server-document/:userId/:fileId/:mySocketId",
+    async (req, res) => {
+      const { userId, fileId, mySocketId } = req.params;
+      const fileName = await isAValidDownloadRequest(
+        userId,
+        fileId,
+        mySocketId
+      );
+      if (!fileName) {
+        return res
+          .status(403)
+          .send("You are not authorized to download this file.");
+      }
+
+      const filePath = path.join(
+        NodeSpecificUtils.getProjectRoot(),
+        "data",
+        "uploads",
+        userId,
+        fileId
+      );
+
+      res.download(filePath, fileName, (err) => {
+        if (err) {
+          logger.critical(
+            `Error sending file ${fileId} for user ${userId}: ${err}`
+          );
+          res.status(500).send("Error downloading the file.");
+        }
+      });
     }
+  );
 
-    const filePath = path.join(
-      NodeSpecificUtils.getProjectRoot(),
-      "data",
-      "uploads",
-      userId,
-      fileId
-    );
+  app.get(
+    "/view-server-document/:userId/:fileId/:mySocketId",
+    async (req, res) => {
+      const { userId, fileId, mySocketId } = req.params;
+      const fileName = await isAValidDownloadRequest(
+        userId,
+        fileId,
+        mySocketId
+      );
+      if (!fileName) {
+        return res
+          .status(403)
+          .send("You are not authorized to download this file.");
+      }
 
-    res.download(filePath, fileName, (err) => {
-      if (err) {
+      const filePath = path.join(
+        NodeSpecificUtils.getProjectRoot(),
+        "data",
+        "uploads",
+        userId,
+        fileId
+      );
+
+      res.setHeader("Content-Disposition", `inline; filename="${fileName}"`);
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.on("error", (err) => {
         logger.critical(
-          `Error sending file ${fileId} for user ${userId}: ${err}`
+          `Error reading file ${fileId} for user ${userId}: ${err}`
         );
         res.status(500).send("Error downloading the file.");
-      }
-    });
-  });
+      });
+      fileStream.pipe(res);
+    }
+  );
 
   // Serve the main HTML file for all other routes
   app.get("/{*any}", (req, res) => {

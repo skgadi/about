@@ -57,7 +57,10 @@ export const useSettingsStore = defineStore('settings', {
 
   getters: {
     downloadpath: (state) => {
-      return state.socketServerUrl + '/download/';
+      return state.socketServerUrl + '/download-server-document/';
+    },
+    viewerPath: (state) => {
+      return state.socketServerUrl + '/view-server-document/';
     },
   },
 
