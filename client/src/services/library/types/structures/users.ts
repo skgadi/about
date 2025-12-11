@@ -222,7 +222,7 @@ export interface GSK_CONTRIBUTION_SKILL {
 export interface GSK_USER_CONTRIBUTION {
   userRole: string;
   contributionDate: string;
-  skillsApplied?: GSK_CONTRIBUTION_SKILL[];
+  skillsApplied: GSK_CONTRIBUTION_SKILL[];
   notes?: string;
 }
 
@@ -250,7 +250,7 @@ export interface GSK_META_INFO {
   author?: string;
 
   importantLinks?: GSK_IMPORTANT_LINK[];
-  userContribution?: GSK_USER_CONTRIBUTION;
+  userContribution?: GSK_USER_CONTRIBUTION[];
   validationAuthority?: GSK_VALIDATION_AUTHORITY[];
   location?: GSK_LOCATION;
 

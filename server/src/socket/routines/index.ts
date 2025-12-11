@@ -3,6 +3,7 @@ import { routines as auth } from "./auth.js";
 import { routines as documents } from "./documents.js";
 import { routines as users } from "./users.js";
 import { routines as userRoot } from "./user-root.js";
+import { routines as metaInfo } from "./meta-info.js";
 
 export const socketRoutines = async (io: any, socket: any) => {
   initTheApp(io, socket);
@@ -10,4 +11,5 @@ export const socketRoutines = async (io: any, socket: any) => {
   documents(io, socket);
   users(io, socket);
   userRoot(io, socket);
+  metaInfo(io, socket);
 };

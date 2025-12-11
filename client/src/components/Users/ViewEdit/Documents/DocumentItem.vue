@@ -11,30 +11,13 @@
         <q-icon :name="docIcon" />
       </q-item-section>
       <q-item-section>
-        <div class="text-bold">
-          <text-field
-            :html-text="document?.metaInfo?.title || ''"
-            :editable="editable"
-            :idx="idx"
-            field-to-update="title"
-          />
-        </div>
-        <div class="text-subtitle2">
-          <text-field
-            :html-text="document?.metaInfo?.subtitle || ''"
-            :editable="editable"
-            :idx="idx"
-            field-to-update="subtitle"
-          />
-        </div>
-        <div class="text-body2 text-weight-light">
-          <text-field
-            :html-text="document?.metaInfo?.description || ''"
-            :editable="editable"
-            :idx="idx"
-            field-to-update="description"
-          />
-        </div>
+        <info-viewer
+          :meta-info="document?.metaInfo"
+          :editable="editable"
+          element="documents"
+          :element-id="document.id"
+          :user-id="userId"
+        />
       </q-item-section>
       <q-item-section align="top" side>
         <div>
@@ -63,6 +46,7 @@
             icon="mdi-trash-can-outline"
             color="negative"
             v-if="editable"
+            @click="deleteADocument(userId, document.id)"
           />
         </div>
       </q-item-section>
@@ -89,7 +73,7 @@ const props = defineProps({
   },
 });
 
-import TextField from 'src/components/Users/ViewEdit/Elements/TextField.vue';
+import InfoViewer from 'src/components/Users/ViewEdit/Meta/InfoViewer.vue';
 import MainPage from 'src/components/Users/ViewEdit/Documents/Viewer/MainPage.vue';
 
 import { computed, type PropType } from 'vue';
@@ -97,9 +81,12 @@ import type { GSK_DOCUMENT } from 'src/services/library/types/structures/users';
 import { fileIconFromMimeType } from 'src/services/utils/file';
 import { downloadADocument, prepareViewerURL } from 'src/services/utils/url';
 import { useUsersStore } from 'src/stores/users-store';
+import { useSocketStore } from 'src/stores/socket-store';
 import { useRoute } from 'vue-router';
+import type { GSK_CS_DOCUMENT_DELETE_REQUEST } from 'src/services/library/types/data-transfer/documents';
 
 const usersStore = useUsersStore();
+const socketStore = useSocketStore();
 const route = useRoute();
 
 const docIcon = computed(() => {
@@ -110,4 +97,18 @@ const docIcon = computed(() => {
 const userId = computed(() => {
   return usersStore.getUserIdFromUrlId(route.params.urlUserId as string);
 });
+
+const deleteADocument = (userId: string, documentId: string) => {
+  const confirm = window.confirm('Are you sure you want to delete this document?');
+  if (confirm) {
+    const payload: GSK_CS_DOCUMENT_DELETE_REQUEST = {
+      id: 'GSK_CS_DOCUMENT_DELETE_REQUEST',
+      payload: {
+        documentId,
+        userId,
+      },
+    };
+    socketStore.emit('GSK_CS_DOCUMENT_DELETE_REQUEST', payload);
+  }
+};
 </script>

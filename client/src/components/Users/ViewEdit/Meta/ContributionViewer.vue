@@ -1,0 +1,51 @@
+<template>
+  <div>Contribution</div>
+  <contribution-element
+    v-for="(contribution, index) in contributions"
+    :key="index"
+    :contribution="contribution"
+    :editable="editable"
+  />
+  <q-btn
+    v-if="editable"
+    size="sm"
+    flat
+    round
+    dense
+    icon="mdi-plus"
+    color="primary"
+    @click="
+      () => {
+        const newContributions = [...contributions];
+        newContributions.push({
+          contributionDate: new Date().toISOString(),
+          userRole: '',
+          notes: '',
+          skillsApplied: [],
+        });
+        emit('updated-contributions', newContributions);
+      }
+    "
+  />
+</template>
+<script lang="ts" setup>
+defineProps({
+  contributions: {
+    type: Array as () => GSK_USER_CONTRIBUTION[],
+    required: true,
+  },
+  editable: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+});
+
+const emit = defineEmits<{
+  (e: 'updated-contributions', newContributions: GSK_USER_CONTRIBUTION[]): void;
+}>();
+
+import ContributionElement from 'src/components/Users/ViewEdit/Meta/ContributionElement.vue';
+
+import type { GSK_USER_CONTRIBUTION } from 'src/services/library/types/structures/users';
+</script>

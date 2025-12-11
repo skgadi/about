@@ -8,3 +8,11 @@ export interface GSK_CS_DOCUMENT_UPLOAD_REQUEST {
     userId: string;
   };
 }
+
+export interface GSK_CS_DOCUMENT_DELETE_REQUEST {
+  id: 'GSK_CS_DOCUMENT_DELETE_REQUEST';
+  payload: {
+    documentId: string;
+    userId: string;
+  };
+}
