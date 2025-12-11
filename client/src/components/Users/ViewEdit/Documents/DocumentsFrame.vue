@@ -7,6 +7,8 @@
     header-class="bg-primary text-white"
     expand-icon-class="text-white"
     expand-icon-toggle
+    default-opened
+    v-model="isDocViewExpanded"
   >
     <template v-slot:header>
       <q-item-section avatar>
@@ -17,9 +19,16 @@
           <div class="text-h6">Documents</div>
         </div>
       </q-item-section>
-      <q-item-section align="top" side>
+      <q-item-section side top>
         <div>
-          <q-btn flat round dense icon="mdi-window-maximize" class="text-white" />
+          <q-btn
+            flat
+            round
+            dense
+            :icon="isDocView ? 'mdi-window-restore' : 'mdi-window-maximize'"
+            :to="{ name: suggestToLink }"
+            class="text-white"
+          />
         </div>
       </q-item-section>
     </template>
@@ -70,6 +79,12 @@ const props = defineProps({
   },
 });
 
+const isDocViewExpanded = defineModel('defaultExpanded', {
+  type: Boolean,
+  required: false,
+  default: false,
+});
+
 import UploadElement from 'src/components/Uploads/UploadElement.vue';
 import DocumentItem from 'src/components/Users/ViewEdit/Documents/DocumentItem.vue';
 
@@ -78,11 +93,12 @@ import type {
   GSK_USER_SELF_DETAILS,
 } from 'src/services/library/types/structures/users';
 import { ref, computed, type PropType } from 'vue';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 const search = ref('');
 
 const filteredDocuments = computed(() => {
-  console.log('Filtering documents with search:', search.value);
   const allDocuments = props.selectedUser?.details?.documents || [];
   if (!search.value || search.value.trim() === '') {
     return allDocuments;
@@ -98,5 +114,18 @@ const filteredDocuments = computed(() => {
       );
     }) || []
   );
+});
+
+const isDocView = computed(
+  () => route.name === 'edit-documents' || route.name === 'view-documents',
+);
+
+const suggestToLink = computed(() => {
+  const isEdit = route.name === 'edit-documents' || route.name === 'edit-profile';
+  if (isDocView.value) {
+    return isEdit ? 'edit-profile' : 'view-profile';
+  } else {
+    return isEdit ? 'edit-documents' : 'view-documents';
+  }
 });
 </script>

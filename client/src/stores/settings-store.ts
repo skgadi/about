@@ -53,6 +53,7 @@ export const useSettingsStore = defineStore('settings', {
     constants: getAvailableConstantSettingsFromCookies(),
     variables: getAvailableVariableSettingsFromCookies(),
     socketServerUrl: '//localhost:3333', // Default socket server URL
+    appendToTitle: [] as string[],
   }),
 
   getters: {
@@ -65,6 +66,9 @@ export const useSettingsStore = defineStore('settings', {
   },
 
   actions: {
+    setAppendToTitle(titleParts: string[]) {
+      this.appendToTitle = titleParts;
+    },
     setSocketServerUrl(url: string) {
       this.socketServerUrl = url;
     },

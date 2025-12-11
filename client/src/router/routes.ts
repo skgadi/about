@@ -1,5 +1,18 @@
 import type { RouteRecordRaw } from 'vue-router';
 
+const commonChildren = (isEdit: boolean = false) => [
+  {
+    path: '',
+    name: isEdit ? 'edit-profile' : 'view-profile',
+    component: () => import('pages/ViewEdit/ProfileIndex.vue'),
+  },
+  {
+    path: 'docs/:docId?',
+    name: isEdit ? 'edit-documents' : 'view-documents',
+    component: () => import('pages/ViewEdit/ProfileDocuments.vue'),
+  },
+];
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -38,20 +51,13 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'v/:urlUserId',
-        name: 'view-public-user-profile',
-        component: () => import('pages/View/ProfileIndex.vue'),
-        children: [
-          {
-            path: 'docs',
-            name: 'view-public-user-documents',
-            component: () => import('pages/View/ProfileDocuments.vue'),
-          },
-        ],
+        //component: () => import('pages/View/ProfileIndex.vue'),
+        children: commonChildren(false),
       },
       {
         path: 'e/:urlUserId',
-        name: 'edit-user-profile',
-        component: () => import('pages/Edit/ProfileIndex.vue'),
+        //component: () => import('pages/Edit/ProfileIndex.vue'),
+        children: commonChildren(true),
       },
       {
         path: 's/:urlUserId',

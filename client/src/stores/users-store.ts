@@ -45,6 +45,23 @@ export const useUsersStore = defineStore('users', {
       this.userFullDetails = null;
     },
 
+    getUserDisplayNameFromUrlId(urlUserId: string | undefined | null): string {
+      if (!urlUserId) {
+        return '';
+      }
+      // urlUserId is either id or userName
+      const user = this.listOfUsers.find((user) => {
+        if (
+          user.id.toLowerCase().trim() === urlUserId.toLowerCase().trim() ||
+          (user.userName || '').toLowerCase().trim() === urlUserId.toLowerCase().trim()
+        ) {
+          return true;
+        }
+        return false;
+      });
+      return user ? user.displayName || '' : ''; // return empty string if not found
+    },
+
     getUserIdFromUrlId(urlUserId: string): string {
       // urlUserId is either id or userName
       const user = this.listOfUsers.find((user) => {
