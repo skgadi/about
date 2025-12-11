@@ -50,9 +50,6 @@
   <contribution-viewer
     :contributions="metaInfo?.userContribution || []"
     :editable="editable"
-    :element="element"
-    :element-id="elementId"
-    :user-id="userId"
     @updated-contributions="
       (newContributions: GSK_USER_CONTRIBUTION[]) =>
         updateMetaField('userContribution', newContributions)

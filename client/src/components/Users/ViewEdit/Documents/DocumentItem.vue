@@ -7,10 +7,10 @@
     :caption="document.metaInfo.subtitle"
   >
     <template v-slot:header>
-      <q-item-section avatar>
-        <q-icon :name="docIcon" />
-      </q-item-section>
       <q-item-section>
+        <!--span>
+          <q-icon :name="docIcon" />
+        </span-->
         <info-viewer
           :meta-info="document?.metaInfo"
           :editable="editable"

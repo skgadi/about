@@ -1,32 +1,51 @@
 <template>
-  <div>Contribution</div>
-  <contribution-element
-    v-for="(contribution, index) in contributions"
-    :key="index"
-    :contribution="contribution"
-    :editable="editable"
-  />
-  <q-btn
-    v-if="editable"
-    size="sm"
-    flat
-    round
-    dense
-    icon="mdi-plus"
-    color="primary"
-    @click="
-      () => {
-        const newContributions = [...contributions];
-        newContributions.push({
-          contributionDate: new Date().toISOString(),
-          userRole: '',
-          notes: '',
-          skillsApplied: [],
-        });
-        emit('updated-contributions', newContributions);
-      }
-    "
-  />
+  <div class="row items-center mb-2">
+    <div>
+      <q-btn
+        v-if="editable"
+        size="sm"
+        flat
+        round
+        dense
+        icon="mdi-plus"
+        color="primary"
+        @click="
+          () => {
+            const newContributions = [...contributions];
+            newContributions.push({
+              contributionDate: new Date().toISOString(),
+              userRole: '',
+              notes: '',
+              skillsApplied: [],
+            });
+            emit('updated-contributions', newContributions);
+          }
+        "
+      />
+    </div>
+    Contribution
+  </div>
+  <q-list dense bordered separator style="border-radius: 16px">
+    <contribution-element
+      v-for="(contribution, index) in contributions"
+      :key="index"
+      :contribution="contribution"
+      :editable="editable"
+      @updated-contribution="
+        (updatedContribution: GSK_USER_CONTRIBUTION) => {
+          const newContributions = [...contributions];
+          newContributions[index] = updatedContribution;
+          emit('updated-contributions', newContributions);
+        }
+      "
+      @deleted-contribution="
+        () => {
+          const newContributions = contributions.filter((_, i) => i !== index);
+          emit('updated-contributions', newContributions);
+        }
+      "
+    />
+  </q-list>
 </template>
 <script lang="ts" setup>
 defineProps({
