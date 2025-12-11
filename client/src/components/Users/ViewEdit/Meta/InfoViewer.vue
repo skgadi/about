@@ -15,46 +15,57 @@
       @updated-text="(newText: string) => updateMetaField('subtitle', newText)"
     />
   </div>
-  <div class="text-body2 text-weight-light text-justify">
-    <text-field
-      :html-text="metaInfo?.shortDescription || ''"
-      :editable="editable"
-      field-to-update="shortDescription"
-      @updated-text="(newText: string) => updateMetaField('shortDescription', newText)"
-    />
-  </div>
-  <div class="text-caption text-weight-light text-justify">
-    <i>
+  <template v-if="!showLittle">
+    <div class="text-body2 text-weight-light text-justify">
       <text-field
-        :html-text="metaInfo?.description || ''"
+        :html-text="metaInfo?.shortDescription || ''"
         :editable="editable"
-        field-to-update="description"
-        @updated-text="(newText: string) => updateMetaField('description', newText)"
+        field-to-update="shortDescription"
+        @updated-text="(newText: string) => updateMetaField('shortDescription', newText)"
       />
-    </i>
-  </div>
-  <list-of-strings
-    :strings="metaInfo?.keywords || []"
-    :editable="editable"
-    this-class="bg-green-1 text-green-9"
-    new-string-name="New Keyword"
-    @updated-strings="(updatedStrings: string[]) => updateMetaField('keywords', updatedStrings)"
-  />
-  <boolean-viewer
-    :bool-value="metaInfo?.isPublic || false"
-    :editable="editable"
-    text-when-true="Public"
-    text-when-false="Private"
-    @updated-bool="(newValue: boolean) => updateMetaField('isPublic', newValue)"
-  />
-  <contribution-viewer
-    :contributions="metaInfo?.userContribution || []"
-    :editable="editable"
-    @updated-contributions="
-      (newContributions: GSK_USER_CONTRIBUTION[]) =>
-        updateMetaField('userContribution', newContributions)
-    "
-  />
+    </div>
+    <div class="text-caption text-weight-light text-justify">
+      <i>
+        <text-field
+          :html-text="metaInfo?.description || ''"
+          :editable="editable"
+          field-to-update="description"
+          @updated-text="(newText: string) => updateMetaField('description', newText)"
+        />
+      </i>
+    </div>
+    <list-of-strings
+      :strings="metaInfo?.keywords || []"
+      :editable="editable"
+      this-class="bg-green-1 text-green-9"
+      new-string-name="New Keyword"
+      @updated-strings="(updatedStrings: string[]) => updateMetaField('keywords', updatedStrings)"
+    />
+    <boolean-viewer
+      :bool-value="metaInfo?.isPublic || false"
+      :editable="editable"
+      text-when-true="Public"
+      text-when-false="Private"
+      @updated-bool="(newValue: boolean) => updateMetaField('isPublic', newValue)"
+    />
+    <hr />
+    <contribution-viewer
+      :contributions="metaInfo?.userContribution || []"
+      :editable="editable"
+      @updated-contributions="
+        (newContributions: GSK_USER_CONTRIBUTION[]) =>
+          updateMetaField('userContribution', newContributions)
+      "
+    />
+    <validation-viewer
+      :validations="metaInfo?.validationAuthority || []"
+      :editable="editable"
+      @updated-validations="
+        (newValidations: GSK_VALIDATION_AUTHORITY[]) =>
+          updateMetaField('validationAuthority', newValidations)
+      "
+    />
+  </template>
 </template>
 <script lang="ts" setup>
 const props = defineProps({
@@ -79,16 +90,23 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  showLittle: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 });
 
 import TextField from 'src/components/Users/ViewEdit/Elements/TextField.vue';
 import ListOfStrings from 'src/components/Users/ViewEdit/Meta/ListOfStrings.vue';
 import BooleanViewer from 'src/components/Users/ViewEdit/Meta/BooleanViewer.vue';
 import ContributionViewer from 'src/components/Users/ViewEdit/Meta/ContributionViewer.vue';
+import ValidationViewer from 'src/components/Users/ViewEdit/Meta/ValidationViewer.vue';
 
 import type {
   GSK_META_INFO,
   GSK_USER_CONTRIBUTION,
+  GSK_VALIDATION_AUTHORITY,
 } from 'src/services/library/types/structures/users';
 import type { PropType } from 'vue';
 import { useSocketStore } from 'src/stores/socket-store';
@@ -98,7 +116,7 @@ const socketStore = useSocketStore();
 
 const updateMetaField = (
   fieldName: string,
-  newValue: string | boolean | string[] | GSK_USER_CONTRIBUTION[],
+  newValue: string | boolean | string[] | GSK_USER_CONTRIBUTION[] | GSK_VALIDATION_AUTHORITY[],
 ) => {
   const message: GSK_CS_META_INFO_UPDATE_A_FIELD = {
     id: 'GSK_CS_META_INFO_UPDATE_A_FIELD',

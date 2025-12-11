@@ -1,11 +1,14 @@
 <template>
   <q-item>
     <q-item-section>
-      <q-item-label>
+      <q-item-label
+        v-if="(contribution.userRole && contribution.userRole.trim() !== '') || editable"
+      >
         Role:
         <text-field
           :html-text="contribution.userRole"
           :editable="editable"
+          allow-empty
           @updated-text="
             (newText: string) => {
               const updatedContribution = { ...contribution, userRole: newText };
@@ -14,7 +17,10 @@
           "
         />
       </q-item-label>
-      <q-item-label caption>
+      <q-item-label
+        caption
+        v-if="contribution.skillsApplied.filter((s) => s.type === 'tech').length > 0 || editable"
+      >
         <div>
           Tech skills:
           <list-of-strings
@@ -42,7 +48,10 @@
           />
         </div>
       </q-item-label>
-      <q-item-label caption>
+      <q-item-label
+        caption
+        v-if="contribution.skillsApplied.filter((s) => s.type === 'soft').length > 0 || editable"
+      >
         <div>
           Soft skills:
           <list-of-strings
@@ -70,12 +79,16 @@
           />
         </div>
       </q-item-label>
-      <q-item-label caption>
+      <q-item-label
+        caption
+        v-if="(contribution.notes && contribution.notes.trim() !== '') || editable"
+      >
         Notes:
         <i>
           <text-field
             :html-text="contribution.notes || ''"
             :editable="editable"
+            allow-empty
             @updated-text="
               (newText: string) => {
                 const updatedContribution = { ...contribution, notes: newText };
@@ -85,7 +98,7 @@
         /></i>
       </q-item-label>
     </q-item-section>
-    <q-item-section side>
+    <q-item-section side top>
       <q-btn
         v-if="editable"
         size="sm"

@@ -229,8 +229,8 @@ export interface GSK_USER_CONTRIBUTION {
 export interface GSK_VALIDATION_AUTHORITY {
   id?: string;
   name: string;
-  authorityType: 'Institution' | 'Company' | 'Individual';
-  validationDate: string;
+  authorityType?: 'Institution' | 'Company' | 'Individual';
+  validationDate?: string;
   authorityUrl?: string;
   notes?: string;
 }

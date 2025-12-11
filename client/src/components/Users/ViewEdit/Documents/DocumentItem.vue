@@ -5,6 +5,8 @@
     :icon="docIcon"
     :label="document.metaInfo.title"
     :caption="document.metaInfo.subtitle"
+    hide-expand-icon
+    v-model="showDocument"
   >
     <template v-slot:header>
       <q-item-section>
@@ -17,18 +19,11 @@
           element="documents"
           :element-id="document.id"
           :user-id="userId"
+          :show-little="showLittle"
         />
       </q-item-section>
-      <q-item-section align="top" side>
+      <q-item-section side top>
         <div>
-          <q-btn
-            size="sm"
-            flat
-            round
-            dense
-            icon="mdi-cloud-download-outline"
-            @click="downloadADocument(userId, document.id)"
-          />
           <q-btn
             size="sm"
             flat
@@ -37,6 +32,33 @@
             icon="mdi-creation-outline"
             color="primary"
             v-if="editable"
+          />
+          <q-btn
+            size="sm"
+            flat
+            round
+            dense
+            :icon="showLittle ? 'mdi-unfold-more-horizontal' : 'mdi-unfold-less-horizontal'"
+            :color="showLittle ? 'grey' : 'primary'"
+            @click="showLittle = !showLittle"
+          />
+          <q-btn
+            size="sm"
+            flat
+            round
+            dense
+            :icon="showDocument ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+            :color="showDocument ? 'primary' : 'grey'"
+            @click="showDocument = !showDocument"
+          />
+          <q-btn
+            size="sm"
+            flat
+            round
+            dense
+            color="primary"
+            icon="mdi-cloud-download-outline"
+            @click="downloadADocument(userId, document.id)"
           />
           <q-btn
             size="sm"
@@ -76,7 +98,7 @@ const props = defineProps({
 import InfoViewer from 'src/components/Users/ViewEdit/Meta/InfoViewer.vue';
 import MainPage from 'src/components/Users/ViewEdit/Documents/Viewer/MainPage.vue';
 
-import { computed, type PropType } from 'vue';
+import { computed, ref, type PropType } from 'vue';
 import type { GSK_DOCUMENT } from 'src/services/library/types/structures/users';
 import { fileIconFromMimeType } from 'src/services/utils/file';
 import { downloadADocument, prepareViewerURL } from 'src/services/utils/url';
@@ -111,4 +133,7 @@ const deleteADocument = (userId: string, documentId: string) => {
     socketStore.emit('GSK_CS_DOCUMENT_DELETE_REQUEST', payload);
   }
 };
+
+const showLittle = ref(true);
+const showDocument = ref(false);
 </script>

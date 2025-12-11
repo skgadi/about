@@ -1,5 +1,5 @@
 <template>
-  <span :class="thisClass" :style="thisStyle" v-html="htmlText" />
+  <span :class="thisClass" :style="thisStyle" v-html="htmlText" v-if="editable || htmlText" />
   <span>
     <template v-if="editable">
       <q-icon name="mdi-pencil-outline" size="16px" class="q-ml-xs" style="cursor: pointer" />
@@ -42,7 +42,7 @@
                 scope.set();
                 emitValue();
               "
-              :disable="!allowEmpty && (!localHtmlText || localHtmlText.trim() === '')"
+              :disable="!allowEmpty && (!localHtmlText || localHtmlText?.trim() === '')"
             />
             <q-btn
               round
@@ -61,7 +61,7 @@
 <script setup lang="ts">
 const props = defineProps({
   htmlText: {
-    type: String,
+    type: String as () => string | null,
     required: false,
     default: '',
   },
@@ -113,11 +113,11 @@ const emit = defineEmits<{
 
 import { ref, watch } from 'vue';
 
-const localHtmlText = ref(props.htmlText);
+const localHtmlText = ref<string | null>(props.htmlText || '');
 watch(
   () => props.htmlText,
   (newVal) => {
-    localHtmlText.value = newVal;
+    localHtmlText.value = newVal || '';
   },
 );
 
@@ -126,9 +126,9 @@ const emitValue = () => {
     return;
   }
   // Check if it has changed
-  if (localHtmlText.value.trim() === props.htmlText.trim()) {
+  if (localHtmlText.value?.trim() === props.htmlText?.trim()) {
     return;
   }
-  emit('updated-text', localHtmlText.value, props.idx);
+  emit('updated-text', localHtmlText.value || '', props.idx);
 };
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div class="row items-center mb-2">
+  <div class="row items-center mb-2" v-if="contributions.length > 0 || editable">
     <div>
       <q-btn
         v-if="editable"
@@ -23,9 +23,9 @@
         "
       />
     </div>
-    Contribution
+    <span>Contribution</span><span v-if="contributions.length !== 1">s</span>
   </div>
-  <q-list dense bordered separator style="border-radius: 16px">
+  <q-list dense bordered separator style="border-radius: 16px" v-if="contributions.length > 0">
     <contribution-element
       v-for="(contribution, index) in contributions"
       :key="index"

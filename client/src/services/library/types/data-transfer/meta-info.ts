@@ -1,4 +1,4 @@
-import type { GSK_USER_CONTRIBUTION } from '../structures/users.js';
+import type { GSK_USER_CONTRIBUTION, GSK_VALIDATION_AUTHORITY } from '../structures/users.js';
 
 export interface GSK_CS_META_INFO_UPDATE_A_FIELD {
   id: 'GSK_CS_META_INFO_UPDATE_A_FIELD';
@@ -7,6 +7,6 @@ export interface GSK_CS_META_INFO_UPDATE_A_FIELD {
     elementId: string;
     userId: string;
     fieldName: string;
-    newValue: string | boolean | string[] | GSK_USER_CONTRIBUTION[];
+    newValue: string | boolean | string[] | GSK_USER_CONTRIBUTION[] | GSK_VALIDATION_AUTHORITY[];
   };
 }
