@@ -16,6 +16,16 @@
     />
   </div>
   <template v-if="!showLittle">
+    <div class="text-caption">
+      Date:
+      <text-field
+        :html-text="metaInfo?.createdAt || ''"
+        :editable="editable"
+        field-to-update="createdAt"
+        @updated-text="(newText: string) => updateMetaField('createdAt', newText)"
+        :is-date="true"
+      />
+    </div>
     <div class="text-body2 text-weight-light text-justify">
       <text-field
         :html-text="metaInfo?.shortDescription || ''"

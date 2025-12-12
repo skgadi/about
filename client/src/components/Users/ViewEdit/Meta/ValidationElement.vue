@@ -50,6 +50,7 @@
         <text-field
           :html-text="validation.validationDate || ''"
           :editable="editable"
+          :is-date="true"
           allow-empty
           @updated-text="
             (newText: string) => {

@@ -1,5 +1,10 @@
 <template>
-  <span :class="thisClass" :style="thisStyle" v-html="htmlText" v-if="editable || htmlText" />
+  <span
+    :class="thisClass"
+    :style="thisStyle"
+    v-html="isDate ? displayDateTime(htmlText) : htmlText"
+    v-if="editable || htmlText"
+  />
   <span>
     <template v-if="editable">
       <q-icon name="mdi-pencil-outline" size="16px" class="q-ml-xs" style="cursor: pointer" />
@@ -16,10 +21,11 @@
         style="border-radius: 50px; width: 400px"
       >
         <q-input
+          v-model="localHtmlText"
+          :type="isDate ? 'datetime-local' : 'text'"
           outlined
           rounded
           dense
-          v-model="localHtmlText"
           style="min-width: 250px"
           clearable
           clear-icon="mdi-close"
@@ -105,19 +111,42 @@ const props = defineProps({
     required: false,
     default: 0,
   },
+  isDate: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 });
 
 const emit = defineEmits<{
   (e: 'updated-text', newText: string, idx: number): void;
 }>();
 
+import { displayDateTime } from 'src/services/utils/date-time';
+import { computed, onMounted } from 'vue';
 import { ref, watch } from 'vue';
+import moment from 'moment';
 
-const localHtmlText = ref<string | null>(props.htmlText || '');
+const localHtmlText = ref<string | null>(null);
+
+const getLocalHtmlText = (): string => {
+  if (props.isDate && props.htmlText) {
+    // props.htmlText is in ISO format
+    const localDate = moment(props.htmlText).local();
+    // return in format yyyy-MM-DDTHH:MM:ss.SSS into local
+    return localDate.format('YYYY-MM-DDTHH:mm:ss.SSS');
+  }
+  return localHtmlText.value || '';
+};
+
+onMounted(() => {
+  localHtmlText.value = getLocalHtmlText();
+});
+
 watch(
   () => props.htmlText,
-  (newVal) => {
-    localHtmlText.value = newVal || '';
+  () => {
+    localHtmlText.value = getLocalHtmlText();
   },
 );
 
@@ -129,6 +158,18 @@ const emitValue = () => {
   if (localHtmlText.value?.trim() === props.htmlText?.trim()) {
     return;
   }
+  if (props.isDate) {
+    emit('updated-text', dateText.value, props.idx);
+  }
   emit('updated-text', localHtmlText.value || '', props.idx);
 };
+
+const dateText = computed(() => {
+  if (props.isDate && localHtmlText.value) {
+    // Convert local date to ISO format
+    const localDate = moment(localHtmlText.value);
+    return localDate.toISOString();
+  }
+  return '';
+});
 </script>
