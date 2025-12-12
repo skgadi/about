@@ -9,6 +9,7 @@ import appSettings from './events/settings';
 import authEvents from './events/auth';
 import notificationsEvents from './events/notifications';
 import users from './events/users';
+import ai from './events/ai';
 import fileHandlingEvents from 'src/services/gsk-packages/file-handling/client/socket-event/events';
 
 class SocketioService {
@@ -53,6 +54,7 @@ class SocketioService {
       authEvents(label, ...args);
       notificationsEvents(label, ...args);
       users(label, ...args);
+      ai(label, ...args);
       fileHandlingEvents(label, ...args);
     });
   }

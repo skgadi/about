@@ -1,9 +1,10 @@
 <template>
-  <auth-required-element>
-    <q-page class="row items-center justify-evenly">My settings page</q-page>
-  </auth-required-element>
+  <auth-for-full-details>
+    <setting-frame />
+  </auth-for-full-details>
 </template>
 
 <script setup lang="ts">
-import AuthRequiredElement from 'src/components/Auth/AuthRequiredElement.vue';
+import AuthForFullDetails from 'src/components/Auth/AuthForFullDetails.vue';
+import SettingFrame from 'src/components/Users/ViewEdit/Settings/SettingFrame.vue';
 </script>

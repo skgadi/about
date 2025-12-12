@@ -1,6 +1,5 @@
 <template>
   <full-profile-frame :editable="isEditable" />
-  <router-view />
 </template>
 
 <script setup lang="ts">

@@ -8,6 +8,7 @@ import type {
   GSK_STRUCTURES_VARIABLE_SETTINGS,
 } from 'src/services/library/types/structures/settings';
 import { Cookies } from 'quasar';
+import type { GSK_AI_MODEL } from 'src/services/library/types/structures/ai';
 
 function getAvailableConstantSettingsFromCookies(): GSK_STRUCTURES_CONSTANT_SETTINGS {
   const settings: GSK_STRUCTURES_CONSTANT_SETTINGS = {
@@ -52,6 +53,7 @@ export const useSettingsStore = defineStore('settings', {
   state: () => ({
     constants: getAvailableConstantSettingsFromCookies(),
     variables: getAvailableVariableSettingsFromCookies(),
+    availableAiModels: [] as GSK_AI_MODEL[],
     socketServerUrl: '//localhost:3333', // Default socket server URL
     appendToTitle: [] as string[],
   }),
@@ -66,6 +68,9 @@ export const useSettingsStore = defineStore('settings', {
   },
 
   actions: {
+    setAvailableAiModels(models: GSK_AI_MODEL[]) {
+      this.availableAiModels = models;
+    },
     setAppendToTitle(titleParts: string[]) {
       this.appendToTitle = titleParts;
     },

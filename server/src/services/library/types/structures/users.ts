@@ -530,12 +530,7 @@ export interface GSK_USER_SETTINGS {
   documentTags: string[];
   eventTags: string[];
   activityTags: string[];
-  [key: string]:
-    | string
-    | number
-    | boolean
-    | Record<string, string | number | boolean>
-    | Array<string | number | boolean>;
+  aiModelPreference?: string;
 }
 
 /* ========================================================================

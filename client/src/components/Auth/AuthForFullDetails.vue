@@ -24,7 +24,7 @@
 </template>
 <script setup lang="ts">
 const props = defineProps<{
-  userId: string;
+  userId?: string;
   isSuperAdminView?: boolean;
 }>();
 
@@ -32,16 +32,19 @@ import SignInForm from 'src/components/Auth/SignInForm.vue';
 
 import { useAuthStore } from 'src/stores/auth-store';
 import { useUsersStore } from 'src/stores/users-store';
+import { useRoute } from 'vue-router';
 import { computed } from 'vue';
 
 const authStore = useAuthStore();
 const usersStore = useUsersStore();
+const route = useRoute();
 
 const isAuthUserAndFullDetailsLoaded = computed(() => {
-  if (!props.userId) return false;
+  const userId = props.userId || usersStore.getUserIdFromUrlId(route.params.urlUserId as string);
+  if (!userId) return false;
   if (!authStore.isSignedIn) return false;
   if (!usersStore.userFullDetails) return false;
-  if (props.userId !== usersStore.userFullDetails.id) return false;
+  if (userId !== usersStore.userFullDetails.id) return false;
   if (!authStore?.userDetails) return false;
   if (props.isSuperAdminView && !authStore.userDetails.isSuperAdmin) return false;
 

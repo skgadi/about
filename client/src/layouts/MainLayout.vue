@@ -104,6 +104,9 @@ const breadcrumbs = computed(() => {
     case 'reset-password':
       out.push('Reset password');
       break;
+    case 'settings-page':
+      out.push('Settings');
+      break;
     case 'edit-profile':
       out.push('Edit Profile');
       break;
