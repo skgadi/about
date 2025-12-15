@@ -2,19 +2,21 @@
   <div class="q-py-lg" style="max-width: 800px; width: 100%; margin: auto">
     <div>
       <span class="text-h6"> AI Model Preference: </span>
-      <text-field
-        :html-text="usersStore.userFullDetails?.settings?.aiModelPreference || ''"
-        :editable="true"
-        :select-options="aiModels"
-        allow-empty
-        @updated-text="
-          (updatedText) =>
-            updateSettings({
-              ...usersStore.userFullDetails?.settings,
-              aiModelPreference: updatedText,
-            } as GSK_USER_SETTINGS)
-        "
-      />
+      <u class="q-ml-md text-primary text-weight-medium">
+        <text-field
+          :html-text="usersStore.userFullDetails?.settings?.aiModelPreference || ''"
+          :editable="true"
+          :select-options="aiModels"
+          allow-empty
+          @updated-text="
+            (updatedText) =>
+              updateSettings({
+                ...usersStore.userFullDetails?.settings,
+                aiModelPreference: updatedText,
+              } as GSK_USER_SETTINGS)
+          "
+        />
+      </u>
     </div>
   </div>
 </template>
@@ -27,14 +29,14 @@ import { useSettingsStore } from 'src/stores/settings-store';
 import { onMounted, computed } from 'vue';
 import type { GSK_CS_AI_REQUEST_AVAILABLE_MODELS } from 'src/services/library/types/data-transfer/ai';
 import type { GSK_QUASAR_OPTION } from 'src/services/library/types/structures/client';
-import { GSK_USER_SETTINGS } from 'src/services/library/types/structures/users';
-import { GSK_CS_UPDATE_USER_SETTING } from 'src/services/library/types/data-transfer/settings';
+import type { GSK_USER_SETTINGS } from 'src/services/library/types/structures/users';
+import type { GSK_CS_UPDATE_USER_SETTING } from 'src/services/library/types/data-transfer/settings';
 
 const usersStore = useUsersStore();
 const socketStore = useSocketStore();
 const settingsStore = useSettingsStore();
 
-onMounted(async () => {
+onMounted(() => {
   if (!settingsStore.availableAiModels.length) {
     const payload: GSK_CS_AI_REQUEST_AVAILABLE_MODELS = {
       id: 'GSK_CS_AI_REQUEST_AVAILABLE_MODELS',

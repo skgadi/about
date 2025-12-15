@@ -10,3 +10,11 @@ export interface GSK_SC_AI_AVAILABLE_MODELS {
     models: GSK_AI_MODEL[];
   };
 }
+
+export interface GSK_CS_AI_REQUEST_GEN_DETAILS_FOR_DOC {
+  id: "GSK_CS_AI_REQUEST_GEN_DETAILS_FOR_DOC";
+  payload: {
+    documentId: string;
+    userId: string;
+  };
+}

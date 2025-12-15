@@ -15,17 +15,25 @@
       @updated-text="(newText: string) => updateMetaField('subtitle', newText)"
     />
   </div>
+  <div class="text-caption" v-if="metaInfo?.publishedDate || editable">
+    Date:
+    <text-field
+      :html-text="metaInfo?.publishedDate || ''"
+      :editable="editable"
+      field-to-update="publishedDate"
+      @updated-text="(newText: string) => updateMetaField('publishedDate', newText)"
+      :is-date="true"
+    />
+  </div>
   <template v-if="!showLittle">
-    <div class="text-caption">
-      Date:
-      <text-field
-        :html-text="metaInfo?.createdAt || ''"
-        :editable="editable"
-        field-to-update="createdAt"
-        @updated-text="(newText: string) => updateMetaField('createdAt', newText)"
-        :is-date="true"
-      />
-    </div>
+    Authors:
+    <list-of-strings
+      :strings="metaInfo?.authors || []"
+      :editable="editable"
+      this-class="bg-blue-1 text-blue-9"
+      new-string-name="New Author"
+      @updated-strings="(updatedStrings: string[]) => updateMetaField('authors', updatedStrings)"
+    />
     <div class="text-body2 text-weight-light text-justify">
       <text-field
         :html-text="metaInfo?.shortDescription || ''"
@@ -44,6 +52,7 @@
         />
       </i>
     </div>
+    KeyWords:
     <list-of-strings
       :strings="metaInfo?.keywords || []"
       :editable="editable"

@@ -14,7 +14,6 @@ export const getUserLinkId = (user: GSK_USER_PUBLIC_SUMMARY | null | undefined):
   if (!userNameRegex.test(user.userName)) {
     return defaultId;
   }
-  console.log('getUserLinkId', user.userName);
   // else return userName
   return user.userName;
 };

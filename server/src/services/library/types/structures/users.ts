@@ -247,7 +247,8 @@ export interface GSK_META_INFO {
   description?: string;
   keywords?: string[];
   coverImageUrl?: string;
-  author?: string;
+  authors?: string[];
+  publishedDate?: string; // ISO date string
 
   importantLinks?: GSK_IMPORTANT_LINK[];
   userContribution?: GSK_USER_CONTRIBUTION[];
@@ -292,7 +293,7 @@ export interface GSK_DOCUMENT {
   extension: string;
   originalName: string;
   sizeBytes: number;
-  mimeType?: string;
+  mimeType: string;
 
   serverFileName: string;
   serverFilePath: string;

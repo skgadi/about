@@ -1,5 +1,5 @@
 <template>
-  <div class="row items-center q-gutter-sm flex-wrap justify-center">
+  <div :class="parentClass">
     <template v-for="(item, idx) in strings" :key="idx">
       <q-chip
         class="q-mr-sm q-mb-sm"
@@ -49,6 +49,11 @@ const props = defineProps({
     type: String,
     required: false,
     default: 'bg-purple-1 text-purple-9',
+  },
+  parentClass: {
+    type: String,
+    required: false,
+    default: '',
   },
   newStringName: {
     type: String,
