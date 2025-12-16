@@ -53,9 +53,11 @@
       <router-view />
     </q-page-container>
   </q-layout>
+  <update-the-details />
 </template>
 
 <script setup lang="ts">
+import UpdateTheDetails from 'src/components/Db/UpdateTheDetails.vue';
 import UpdateRibbon from 'components/Generic/UpdateRibbon.vue';
 import ConnectivityIndicator from 'src/components/Generic/ConnectivityIndicator.vue';
 import CookiesConsent from 'src/components/Generic/CookiesConsent.vue';

@@ -1,69 +1,79 @@
 <template>
-  <q-expansion-item
-    class="shadow-1 overflow-hidden"
-    style="border-radius: 30px"
-    icon="mdi-file-document-multiple-outline"
-    label="Documents"
-    header-class="bg-primary text-white"
-    expand-icon-class="text-white"
-    expand-icon-toggle
-    default-opened
-    v-model="isDocViewExpanded"
-  >
-    <template v-slot:header>
-      <q-item-section avatar>
-        <q-icon name="mdi-file-document-multiple-outline" />
-      </q-item-section>
-      <q-item-section>
-        <div class="row items-center">
-          <div class="text-h6">Documents</div>
-        </div>
-      </q-item-section>
-      <q-item-section side top>
-        <div>
-          <q-btn
-            flat
-            round
-            dense
-            :icon="isDocView ? 'mdi-window-restore' : 'mdi-window-maximize'"
-            :to="{ name: suggestToLink }"
-            class="text-white"
-          />
-        </div>
-      </q-item-section>
-    </template>
-    <q-input
-      dense
-      filled
-      v-model="search"
-      placeholder="Search"
-      class="bg-blue-1"
-      clearable
-      clear-icon="mdi-close"
+  <template v-if="selectedDoc">
+    <document-item
+      :document="selectedDoc"
+      :editable="editable"
+      :show-little="false"
+      :show-document="true"
+    />
+  </template>
+  <template v-else>
+    <q-expansion-item
+      class="shadow-1 overflow-hidden"
+      style="border-radius: 30px"
+      icon="mdi-file-document-multiple-outline"
+      label="Documents"
+      header-class="bg-primary text-white"
+      expand-icon-class="text-white"
+      expand-icon-toggle
+      default-opened
+      v-model="isDocViewExpanded"
     >
-      <template v-slot:prepend>
-        <q-icon name="mdi-magnify" />
+      <template v-slot:header>
+        <q-item-section avatar>
+          <q-icon name="mdi-file-document-multiple-outline" />
+        </q-item-section>
+        <q-item-section>
+          <div class="row items-center">
+            <div class="text-h6">Documents</div>
+          </div>
+        </q-item-section>
+        <q-item-section side top>
+          <div>
+            <q-btn
+              flat
+              round
+              dense
+              :icon="isDocView ? 'mdi-window-restore' : 'mdi-window-maximize'"
+              :to="{ name: suggestToLink }"
+              class="text-white"
+            />
+          </div>
+        </q-item-section>
       </template>
-    </q-input>
-    <q-list bordered separator>
-      <q-expansion-item
-        expand-icon-toggle
-        expand-separator
-        icon="mdi-file-document-plus-outline"
-        label="Add new document"
-        v-if="editable"
+      <q-input
+        dense
+        filled
+        v-model="search"
+        placeholder="Search"
+        class="bg-blue-1"
+        clearable
+        clear-icon="mdi-close"
       >
-        <q-card>
-          <q-card-section>
-            <upload-element />
-          </q-card-section>
-        </q-card>
-      </q-expansion-item>
-      <template v-for="(item, idx) in filteredDocuments" :key="idx">
-        <document-item :document="item" :editable="editable" />
-      </template>
-    </q-list>
-  </q-expansion-item>
+        <template v-slot:prepend>
+          <q-icon name="mdi-magnify" />
+        </template>
+      </q-input>
+      <q-list bordered separator>
+        <q-expansion-item
+          expand-icon-toggle
+          expand-separator
+          icon="mdi-file-document-plus-outline"
+          label="Add new document"
+          v-if="editable"
+        >
+          <q-card>
+            <q-card-section>
+              <upload-element />
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+        <template v-for="(item, idx) in filteredDocuments" :key="idx">
+          <document-item :document="item" :editable="editable" />
+        </template>
+      </q-list>
+    </q-expansion-item>
+  </template>
 </template>
 <script setup lang="ts">
 const props = defineProps({
@@ -127,5 +137,10 @@ const suggestToLink = computed(() => {
   } else {
     return isEdit ? 'edit-documents' : 'view-documents';
   }
+});
+
+const selectedDoc = computed(() => {
+  const docId = route.params.docId as string;
+  return props.selectedUser?.details?.documents?.find((doc) => doc.id === docId) || null;
 });
 </script>
