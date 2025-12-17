@@ -1,8 +1,8 @@
 {
-  "name": "about-me",
-  "version": "0.0.1",
-  "description": "A about me project.",
-  "productName": "About me",
+  "name": "papr",
+  "version": "1.0.0",
+  "description": "A Papr project.",
+  "productName": "Papr",
   "author": "Suresh Kumar Gadi <gadisureshkumar@gmail.com>",
   "type": "module",
   "private": true,
