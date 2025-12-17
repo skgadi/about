@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  papr-app:
+    image: papr
+    container_name: papr-container
+    restart: always
+    ports:
+      - "95:3333"
+    volumes:
+    - ./data:/app/data
+    environment:
+      - DEFAULT_ADMIN_PASSWORD=put-your-password-here
+      - DEFAULT_USERNAME=SKGadi
+      - DEFAULT_ADMIN_EMAIL=gadisureshkumar@gmail.com
+      - NODE_ENV=production
+      - LOG_LEVEL=MODERATE
+      - GEMINI_API_KEY=AIzaaaAAAJJJVVV-bbbpppJJJ555999444MMM22
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
