@@ -1,6 +1,10 @@
 // signed-in-store.ts
 import { Server, Socket } from "socket.io";
 import { GSK_SOCKET_PAYLOAD_SIGNED_IN_DB } from "../../services/library/types/structures/socket-payloads.js";
+import { getDatabase } from "../../db/initialization.js";
+import { logger } from "../../services/utils/logging.js";
+import { dbToJsonUserSelf, dbToJsonUserServerSummary } from "../../services/utils/users/db-json.js";
+import { GSK_SC_AUTH_SIGN_IN_SUCCESS } from "../../services/library/types/data-transfer/auth.js";
 
 type User = GSK_SOCKET_PAYLOAD_SIGNED_IN_DB["user"];
 
@@ -111,6 +115,42 @@ class SignedInStore {
     if (!user) return false;
     // if user is the same as userId, or is admin/superadmin
     return user.id === userId || user.isAdmin || user.isSuperAdmin;
+  }
+
+
+  /** Update the userInfoFrom the database and send to client */
+  updateUserInfoFromDB(userId: string) {
+    // check if the user is signed in
+    const socket = this.getSocketByUserId(userId);
+    if (!socket) return;
+
+    // re-fetch user info from database
+    try {
+      const db = getDatabase();
+      const userRecord = db
+        .prepare("SELECT * FROM users WHERE id = ?")
+        .get(userId);
+      if (!userRecord) {
+        logger.moderate(`User with ID ${userId} not found in DB`);
+        return;
+      }
+      // prepare user info
+      const updatedUser = dbToJsonUserServerSummary(userRecord);
+      const userSelfDetails = dbToJsonUserSelf(userRecord);
+      // update in store
+      this.socketToUser.set(socket.id, updatedUser);
+      // emit to client
+      const payload: GSK_SC_AUTH_SIGN_IN_SUCCESS = {
+        id: "GSK_SC_AUTH_SIGN_IN_SUCCESS",
+        payload: {
+          user: userSelfDetails
+        },
+      };
+      socket.emit("GSK_SC_AUTH_SIGN_IN_SUCCESS", payload);
+    } catch (error) {
+      logger.moderate('Error updating user info from DB for userId ' + userId, error);
+      return;
+    }
   }
 }
 

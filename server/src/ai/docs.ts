@@ -42,7 +42,6 @@ export async function getAiDocIdx(
       logger.moderate("AI handler is not initialized.");
       return -1;
     }
-    console.log(`Uploading document ${doc.id} for user ${userId} to AI`);
     const filePath = await filesFolder.getUserDocumentFilePath(userId, doc.id);
     const file = await ai.files.upload({
       file: filePath,
@@ -55,8 +54,6 @@ export async function getAiDocIdx(
     let getFile = await ai.files.get({ name: file.name! });
     while (getFile.state === "PROCESSING") {
       getFile = await ai.files.get({ name: file.name! });
-      console.log(`current file status: ${getFile.state}`);
-      console.log("File is still processing, retrying in 5 seconds");
 
       await new Promise((resolve) => {
         setTimeout(resolve, 5000);
@@ -149,19 +146,17 @@ export const generateMetaInfoFromAi = async (
 ): Promise<GSK_META_INFO | null> => {
   try {
     const content: any[] = [
-      `Extract the main information as per the following schema: ${JSON.stringify(
-        metaFormats.metaMainInfo.toJSONSchema()
-      )}. Provide only the JSON output without any additional text.`,
+      createPartFromUri(file.uri!, file.mimeType || "application/octet-stream"),
     ];
-    content.push(
-      createPartFromUri(file.uri!, file.mimeType || "application/octet-stream")
-    );
 
     const response = await ai!.models.generateContent({
       model: aiModel,
       contents: content,
       config: {
         temperature: 0.25,
+        systemInstruction: `You are an expert content analyzer. Extract the main information as per the following schema: ${JSON.stringify(
+          metaFormats.metaMainInfo.toJSONSchema()
+        )}. Provide only the JSON output without any additional text.`,
       },
     });
     // remove ```json ... ``` if present
@@ -190,7 +185,6 @@ export const generateMetaInfoFromAi = async (
     logger.moderate("AI Meta Info Generation Error:", error);
     return null;
   }
-  return null;
 };
 
 const obtainUserContributions = async (
@@ -234,18 +228,16 @@ const obtainSkills = async (
 ): Promise<{ skill: string; type_isSoft: boolean }[] | null> => {
   try {
     const content: any[] = [
-      `List the skills \`${userName}\` has applied in the content along with their type (soft/hard). Format the output as JSON following the schema: ${JSON.stringify(
-        metaFormats.metaListSkills(userName, role).toJSONSchema()
-      )}. Provide only the JSON output without any additional text.`,
+      createPartFromUri(file.uri!, file.mimeType || "application/octet-stream"),
     ];
-    content.push(
-      createPartFromUri(file.uri!, file.mimeType || "application/octet-stream")
-    );
     const response = await ai!.models.generateContent({
       model: aiModel,
       contents: content,
       config: {
         temperature: 0.25,
+        systemInstruction: `You are an highly skilled HR professional with expertise in analyzing individual contributions to projects. List the skills \`${userName}\` has applied in the content along with their type (soft/hard). Format the output as JSON following the schema: ${JSON.stringify(
+          metaFormats.metaListSkills(userName, role).toJSONSchema()
+        )}. Provide only the JSON output without any additional text.`,
       },
     });
     // remove ```json ... ``` if present
@@ -281,18 +273,16 @@ const obtainRoles = async (
 ): Promise<{ role: string; notes: string; date: string }[] | null> => {
   try {
     const content: any[] = [
-      `List the roles \`${userName}\` has undertaken in various tasks for the content along with their justifications. Format the output as JSON following the schema: ${JSON.stringify(
-        metaFormats.metaListRoles(userName).toJSONSchema()
-      )}. Provide only the JSON output without any additional text.`,
+      createPartFromUri(file.uri!, file.mimeType || "application/octet-stream"),
     ];
-    content.push(
-      createPartFromUri(file.uri!, file.mimeType || "application/octet-stream")
-    );
     const response = await ai!.models.generateContent({
       model: aiModel,
       contents: content,
       config: {
         temperature: 0.25,
+        systemInstruction: `You are an highly skilled HR professional with expertise in analyzing individual contributions to projects. List the roles \`${userName}\` has undertaken in various tasks for the content along with their justifications. Format the output as JSON following the schema: ${JSON.stringify(
+          metaFormats.metaListRoles(userName).toJSONSchema()
+        )}. Provide only the JSON output without any additional text.`,
       },
     });
     // remove ```json ... ``` if present

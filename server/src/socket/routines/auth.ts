@@ -29,7 +29,6 @@ export const routines = (io: any, socket: any) => {
 
       const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
       logger.verbose(`Attempting to authenticate user with email: ${email}`);
-      console.log(user);
       if (!user) {
         notifyErrorToClient(
           socket,

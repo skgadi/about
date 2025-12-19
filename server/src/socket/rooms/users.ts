@@ -1,3 +1,4 @@
+import { signedInStore } from "../../socket/payloads/signed-in-db.js";
 import { getDatabase } from "../../db/initialization.js";
 import {
   GSK_SC_USER_LIST_UPDATE,
@@ -192,6 +193,7 @@ class usersRoomRoutines {
     this.emitUsersListUpdate(null, userId);
     this.emitUserPublicDetailsUpdate(null, userId);
     this.emitUserSelfDetailsUpdate(null, userId);
+    signedInStore.updateUserInfoFromDB(userId);
   }
 }
 

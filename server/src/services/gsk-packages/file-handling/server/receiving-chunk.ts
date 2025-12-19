@@ -20,9 +20,6 @@ export const receivingChunk = (
     "GSK_PKG_FL_DT_TRANSFER_CHUNK",
     async (data: GSK_PKG_FL_DT_TRANSFER_CHUNK) => {
       try {
-        console.log(
-          `Receiving chunk index ${data.payload.chunk.chunkIndex} for fileId: ${data.payload.chunk.fileId}; size: ${data.payload.chunk.chunkSizeInBytes} bytes`
-        );
         // strore the chunk data to the file with name `{fileId}_chunk_{chunkIndex}`
         const record = info.transfersInProgress.find(
           (rec) => rec.fileId === data.payload.chunk.fileId
@@ -72,7 +69,9 @@ export const receivingChunk = (
 
             // check the checksum is correct
             const hex = await getFileChecksumWithAwait(finalFileName, "sha512");
-            console.log(`Calculated checksum for fileId: ${fileId} is ${hex}`);
+            logger.critical(
+              `Calculated checksum for fileId: ${fileId} is ${hex}`
+            );
             if (hex !== record.sha512Hash) {
               failedReceivingChunkResponse(
                 `Checksum mismatch for fileId: ${fileId}`,
