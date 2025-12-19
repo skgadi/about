@@ -21,6 +21,14 @@
           :user-id="userId"
           :show-little="showLittle"
         />
+        <extra-info-viewer
+          :extra-info="document?.extraInfo || []"
+          :editable="editable"
+          type="GSK_DOCUMENT"
+          :element-id="document.id"
+          :user-id="userId"
+          :hidden="showLittle"
+        />
       </q-item-section>
       <q-item-section side top>
         <div>
@@ -105,6 +113,7 @@ const props = defineProps({
   },
 });
 
+import ExtraInfoViewer from 'src/components/InfoViewer/MainComponent.vue';
 import InfoViewer from 'src/components/Users/ViewEdit/Meta/InfoViewer.vue';
 import MainPage from 'src/components/Users/ViewEdit/Documents/Viewer/MainPage.vue';
 

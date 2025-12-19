@@ -92,6 +92,12 @@ export default defineConfig((ctx) => {
           },
           { server: false },
         ],
+        [
+          'vite-plugin-monaco-editor',
+          {
+            languageWorkers: ['editorWorkerService', 'typescript', 'json', 'css', 'html'],
+          },
+        ],
       ],
     },
 

@@ -1,4 +1,5 @@
 import type {
+  GSK_INFO_VIEWER,
   GSK_USER_PUBLIC_DETAILS,
   GSK_USER_PUBLIC_SUMMARY,
   GSK_USER_SELF_DETAILS,
@@ -41,5 +42,15 @@ export interface GSK_CS_USER_SELF_DETAILS_REQUEST {
   id: 'GSK_CS_USER_SELF_DETAILS_REQUEST';
   payload: {
     userId: string;
+  };
+}
+
+export interface GSK_CS_UPDATE_EXTRA_INFO {
+  id: 'GSK_CS_UPDATE_EXTRA_INFO';
+  payload: {
+    userId: string;
+    type: 'GSK_TIMELINE' | 'GSK_EVENT' | 'GSK_DOCUMENT' | 'GSK_ACTIVITY';
+    elementId: string;
+    extraInfo: GSK_INFO_VIEWER[];
   };
 }

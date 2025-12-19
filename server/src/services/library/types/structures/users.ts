@@ -23,18 +23,13 @@ export type GSK_INFO_TYPE =
   | "xml"
   | "yaml"
   | "csv"
-  | "table"
 
-  // Files & External Assets
-  | "file" // generic file reference
-  | "pdf"
-  | "image"
-  | "audio"
-  | "video"
-  | "archive" // zip, rar, 7z, tar.gz
+  // Files & External Assets. Url or embedded
 
   // Web & External Links
   | "url" // generic URL
+  | "pdf"
+  | "archive" // zip, rar, 7z, tar.gz
   | "video_url" // YouTube, Vimeo, etc.
   | "audio_url" // Spotify, MP3 link, radio stream
   | "image_url"
@@ -45,24 +40,16 @@ export type GSK_INFO_TYPE =
   | "google_slides_url"
 
   // Geographic Data
-  | "coordinates" // lat/long pair
+  | "coordinates" // lat/long pair in ISO6709 format
   | "map_url" // Google Maps, Waze, OpenStreetMap
 
   // Citation & Reference Formats
   | "bibtex"
-  | "reference" // APA/MLA/etc.
+  | "reference" // APA/MLA/etc. in text form
   | "doi"
 
   // Specialized Data Representations
-  | "diagram" // textual diagram DSL (mermaid, graphviz)
-  | "mindmap"
-  | "code" // any programming code block
-  | "dataset" // statistical/scientific dataset
-
-  // Metadata & Generic Info
-  | "metadata" // key-value metadata
-  | "tag"
-  | "category";
+  | "diagram_mermaid"; // textual diagram DSL (mermaid, graphviz) // ========================================================================
 
 /** User audit log actions */
 export type GSK_USER_LOG_ACTION_TYPE =
@@ -267,19 +254,11 @@ export interface GSK_META_INFO {
    ======================================================================== */
 
 export interface GSK_INFO_VIEWER {
-  id?: string;
-  metaInfo?: GSK_META_INFO;
-
   typeOfInfo: GSK_INFO_TYPE;
+  title: string;
+  description: string;
   data: string;
-
-  summary?: string;
-  mimeType?: string;
-  sizeBytes?: number;
-
-  referencedDocumentId?: string;
-  providerMeta?: Record<string, string | number | boolean>;
-  createdAt?: string;
+  isPublic: boolean;
 }
 
 /* ========================================================================
@@ -331,13 +310,13 @@ export interface GSK_ACTIVITY {
   activityType: string;
   metaInfo: GSK_META_INFO;
 
-  activityDate: string;
+  activityDate: string; // also starting date in ISO8601 format
   endDate?: string;
   duration?: string;
   durationSeconds?: number;
 
   location?: GSK_LOCATION;
-  additionalInfoToShow?: GSK_INFO_VIEWER[];
+  extraInfo?: GSK_INFO_VIEWER[];
 
   relatedDocuments?: string[];
   relatedEvents?: string[];

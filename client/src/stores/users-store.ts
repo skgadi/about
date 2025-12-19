@@ -63,11 +63,14 @@ export const useUsersStore = defineStore('users', {
     },
 
     getUserIdFromUrlId(urlUserId: string): string {
+      if (!urlUserId) {
+        return '';
+      }
       // urlUserId is either id or userName
       const user = this.listOfUsers.find((user) => {
         if (
-          user.id.toLowerCase().trim() === urlUserId.toLowerCase().trim() ||
-          (user.userName || '').toLowerCase().trim() === urlUserId.toLowerCase().trim()
+          (user?.id || '').toLowerCase().trim() === (urlUserId || '').toLowerCase().trim() ||
+          (user.userName || '').toLowerCase().trim() === (urlUserId || '').toLowerCase().trim()
         ) {
           return true;
         }
