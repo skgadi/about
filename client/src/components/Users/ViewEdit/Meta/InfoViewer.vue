@@ -67,7 +67,6 @@
       text-when-false="Private"
       @updated-bool="(newValue: boolean) => updateMetaField('isPublic', newValue)"
     />
-    <hr />
     <contribution-viewer
       :contributions="metaInfo?.userContribution || []"
       :editable="editable"

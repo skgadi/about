@@ -1,6 +1,6 @@
 <template>
-  <div style="height: 400px; max-height: calc(80vh - 100px)">
-    <template v-if="editable">
+  <template v-if="editable">
+    <div style="height: 400px; max-height: calc(80vh - 100px)">
       <div class="column" style="height: 100%">
         <div class="col-auto">
           <div class="row justify-end q-gutter-sm">
@@ -52,8 +52,11 @@
           <text-view-index v-else :info-viewer="temporaryInfoViewer" />
         </div>
       </div>
-    </template>
-  </div>
+    </div>
+  </template>
+  <template v-else>
+    <text-view-index :info-viewer="infoViewer" />
+  </template>
 </template>
 
 <script setup lang="ts">

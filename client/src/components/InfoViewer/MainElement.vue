@@ -1,5 +1,44 @@
 <template>
+  <div class="text-h6" v-if="editable || infoViewer.title">
+    <text-field
+      :editable="editable"
+      :html-text="infoViewer.title"
+      @updated-text="
+        (updatedTitle) => {
+          const updatedInfo = { ...infoViewer, title: updatedTitle };
+          emit('updated-info', updatedInfo as GSK_INFO_VIEWER);
+        }
+      "
+    />
+  </div>
+  <div class="text-caption q-mb-md text-italic" v-if="editable || infoViewer.description">
+    <text-field
+      :editable="editable"
+      :html-text="infoViewer.description"
+      allow-empty
+      @updated-text="
+        (updatedDescription) => {
+          const updatedInfo = { ...infoViewer, description: updatedDescription };
+          emit('updated-info', updatedInfo as GSK_INFO_VIEWER);
+        }
+      "
+    />
+  </div>
   <div v-if="editable">
+    <boolean-viewer
+      :bool-value="infoViewer.isPublic || false"
+      :editable="editable"
+      text-when-true="Public"
+      text-when-false="Private"
+      @updated-bool="
+        (newValue: boolean) => {
+          const updatedInfo = { ...infoViewer, isPublic: newValue };
+          emit('updated-info', updatedInfo as GSK_INFO_VIEWER);
+        }
+      "
+    />
+    <br />
+    Type of Info:
     <text-field
       :editable="editable"
       :select-options="viewerOptions"
@@ -41,9 +80,10 @@ const emit = defineEmits<{
   (e: 'updated-info', updatedInfo: GSK_INFO_VIEWER): void;
 }>();
 
+import BooleanViewer from 'src/components/Users/ViewEdit/Meta/BooleanViewer.vue';
 import TextField from 'src/components/Users/ViewEdit/Elements/TextField.vue';
-import type { GSK_QUASAR_OPTION } from 'src/services/library/types/structures/client';
 
+import type { GSK_QUASAR_OPTION } from 'src/services/library/types/structures/client';
 import type { GSK_INFO_VIEWER } from 'src/services/library/types/structures/users';
 import { computed, type PropType, type Component, defineAsyncComponent } from 'vue';
 

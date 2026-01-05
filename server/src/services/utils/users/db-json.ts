@@ -127,6 +127,19 @@ const keepOnlyPublicDetails = (
     output.timelines = inputUserDetails.timelines.filter(
       (timeline) => timeline.metaInfo.isPublic
     );
+    // Timelines might have extraInfo that needs to be filtered as well base on isPublic
+    output.timelines = output.timelines.map((timeline) => {
+      const filteredTimeline = { ...timeline };
+      if (
+        filteredTimeline.extraInfo &&
+        Array.isArray(filteredTimeline.extraInfo)
+      ) {
+        filteredTimeline.extraInfo = filteredTimeline.extraInfo.filter(
+          (info) => info.isPublic
+        );
+      }
+      return filteredTimeline;
+    });
   }
 
   // Remove documents that are not public
@@ -135,12 +148,39 @@ const keepOnlyPublicDetails = (
       (document) => document.metaInfo.isPublic
     );
   }
+  // Remove the extraInfo from documents that is not public
+  if (output.documents && Array.isArray(output.documents)) {
+    output.documents = output.documents.map((document) => {
+      const filteredDocument = { ...document };
+      if (
+        filteredDocument.extraInfo &&
+        Array.isArray(filteredDocument.extraInfo)
+      ) {
+        filteredDocument.extraInfo = filteredDocument.extraInfo.filter(
+          (info) => info.isPublic
+        );
+      }
+      return filteredDocument;
+    });
+  }
 
   // Remove events that are not public
   if (inputUserDetails.events && Array.isArray(inputUserDetails.events)) {
     output.events = inputUserDetails.events.filter(
       (event) => event.metaInfo.isPublic
     );
+  }
+  // Remove the extraInfo from events that is not public
+  if (output.events && Array.isArray(output.events)) {
+    output.events = output.events.map((event) => {
+      const filteredEvent = { ...event };
+      if (filteredEvent.extraInfo && Array.isArray(filteredEvent.extraInfo)) {
+        filteredEvent.extraInfo = filteredEvent.extraInfo.filter(
+          (info) => info.isPublic
+        );
+      }
+      return filteredEvent;
+    });
   }
 
   // Remove activities that are not public
@@ -151,6 +191,21 @@ const keepOnlyPublicDetails = (
     output.activities = inputUserDetails.activities.filter(
       (activity) => activity.metaInfo.isPublic
     );
+  }
+  // Remove the extraInfo from activities that is not public
+  if (output.activities && Array.isArray(output.activities)) {
+    output.activities = output.activities.map((activity) => {
+      const filteredActivity = { ...activity };
+      if (
+        filteredActivity.extraInfo &&
+        Array.isArray(filteredActivity.extraInfo)
+      ) {
+        filteredActivity.extraInfo = filteredActivity.extraInfo.filter(
+          (info) => info.isPublic
+        );
+      }
+      return filteredActivity;
+    });
   }
 
   return output;

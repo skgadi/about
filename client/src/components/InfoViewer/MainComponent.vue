@@ -14,7 +14,7 @@
               typeOfInfo: 'text',
               data: '',
               title: 'New Info',
-              description: 'Your description here',
+              description: '',
               isPublic: true,
             },
           ])
@@ -23,18 +23,22 @@
         <q-tooltip>Add Extra Info</q-tooltip>
       </q-btn>
     </div>
-    <div v-for="(infoViewer, index) in extraInfo || []" :key="index" class="my-2">
-      <main-element
-        :info-viewer="infoViewer"
-        :editable="editable"
-        @updated-info="
-          (updatedInfo: GSK_INFO_VIEWER) => {
-            const newExtraInfo = [...(extraInfo || [])];
-            newExtraInfo[index] = updatedInfo;
-            updateExtraInfo(newExtraInfo);
-          }
-        "
-      />
+    <div class="q-gutter-md">
+      <template v-for="(infoViewer, index) in extraInfo || []" :key="index">
+        <div>
+          <main-element
+            :info-viewer="infoViewer"
+            :editable="editable"
+            @updated-info="
+              (updatedInfo: GSK_INFO_VIEWER) => {
+                const newExtraInfo = [...(extraInfo || [])];
+                newExtraInfo[index] = updatedInfo;
+                updateExtraInfo(newExtraInfo);
+              }
+            "
+          />
+        </div>
+      </template>
     </div>
   </template>
 </template>
