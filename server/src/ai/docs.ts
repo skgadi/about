@@ -2,6 +2,7 @@ import {
   GSK_DOCUMENT,
   GSK_META_INFO,
   GSK_USER_CONTRIBUTION,
+  GSK_VALIDATION_AUTHORITY,
 } from "../services/library/types/structures/users.js";
 import { GSK_AI_SV_UPLOADED_DOC } from "../services/library/types/structures/ai-server.js";
 import { logger } from "../services/utils/logging.js";
@@ -16,10 +17,7 @@ import metaFormats from "./meta.js";
 const uploadedDocs: GSK_AI_SV_UPLOADED_DOC[] = [];
 const ai = getAIHandler().ai;
 
-export async function getAiDocIdx(
-  doc: GSK_DOCUMENT,
-  userId: string
-): Promise<number> {
+async function getAiDocIdx(doc: GSK_DOCUMENT, userId: string): Promise<number> {
   try {
     // check if the doc is already uploaded
     const existingDocIdx = uploadedDocs.findIndex(
@@ -82,6 +80,40 @@ export async function getAiDocIdx(
   }
 }
 
+const getUniqueGeminiId = (idx: number): string => {
+  return uploadedDocs[idx].uniqueGeminiId;
+};
+
+export const getAiFile = async (
+  doc: GSK_DOCUMENT,
+  userId: string
+): Promise<any[]> => {
+  if (!ai) {
+    throw new Error("AI handler is not initialized.");
+  }
+  const aiDocIdx = await getAiDocIdx(doc, userId);
+  if (aiDocIdx < 0) {
+    throw new Error("Failed to get AI document index.");
+  }
+  const file = await ai.files.get({
+    name: getUniqueGeminiId(aiDocIdx),
+  });
+  if (file.state !== "ACTIVE" && !file.uri && !file.mimeType) {
+    throw new Error(
+      `File is not active for docId ${doc.id} with state ${file.state} or invalid uri ${file.uri} or mimeType ${file.mimeType}`
+    );
+  }
+  if (!file.uri || !file.mimeType) {
+    throw new Error(
+      `File has invalid uri ${file.uri} or mimeType ${file.mimeType} for docId ${doc.id}`
+    );
+  }
+  const content: any[] = [
+    createPartFromUri(file.uri!, file.mimeType || "application/octet-stream"),
+  ];
+  return content;
+};
+
 export const getSummaryOfAiDoc = async (
   socket: Socket,
   userId: string,
@@ -132,15 +164,25 @@ export const getSummaryOfAiDoc = async (
     file,
     userName
   );
-  if (!contributions) {
-    return metaInfo;
+  if (!!contributions) {
+    metaInfo.userContribution = contributions;
+    metaInfo.isPublic = doc.metaInfo.isPublic || false;
   }
-  metaInfo.userContribution = contributions;
-  metaInfo.isPublic = doc.metaInfo.isPublic || false;
+
+  // Obtain Validations
+  const validations = await obtainValidations(
+    userSelectedModel.id,
+    file,
+    userName
+  );
+  if (!!validations) {
+    metaInfo.validationAuthority = validations;
+  }
+
   return metaInfo;
 };
 
-export const generateMetaInfoFromAi = async (
+const generateMetaInfoFromAi = async (
   aiModel: string,
   file: File
 ): Promise<GSK_META_INFO | null> => {
@@ -308,6 +350,54 @@ const obtainRoles = async (
     return rolesList;
   } catch (error) {
     logger.moderate("AI User Roles Generation Error:", error);
+    return null;
+  }
+};
+
+const obtainValidations = async (
+  aiModel: string,
+  file: File,
+  userName: string
+): Promise<GSK_VALIDATION_AUTHORITY[] | null> => {
+  try {
+    const content: any[] = [
+      createPartFromUri(file.uri!, file.mimeType || "application/octet-stream"),
+    ];
+    const response = await ai!.models.generateContent({
+      model: aiModel,
+      contents: content,
+      config: {
+        temperature: 0.25,
+        systemInstruction: `You are an highly skilled compliance officer with expertise in analyzing project validations. List the authorities who have validated the content along with their justifications. Format the output as JSON following the schema: ${JSON.stringify(
+          metaFormats.metaValidationAuthorities.toJSONSchema()
+        )}. Provide only the JSON output without any additional text.`,
+      },
+    });
+    // remove ```json ... ``` if present
+    const improvedText = response.text
+      ? response.text.replace(/```json/g, "").replace(/```/g, "")
+      : "";
+    const parsed = metaFormats.metaValidationAuthorities.safeParse(
+      JSON.parse(improvedText || "{}")
+    );
+    if (!parsed.success) {
+      logger.moderate("AI User Validations Parsing Failed:", parsed.error);
+      return null;
+    }
+    const validationsList: GSK_VALIDATION_AUTHORITY[] = [];
+    parsed.data?.authorities.forEach((authItem) => {
+      validationsList.push({
+        name: authItem.name,
+        authorityType: authItem.authorityType || undefined,
+        validationDate: authItem.validationDate,
+        authorityUrl: authItem.authorityUrl,
+        notes: authItem.notes,
+      });
+    });
+
+    return validationsList;
+  } catch (error) {
+    logger.moderate("AI User Validations Generation Error:", error);
     return null;
   }
 };

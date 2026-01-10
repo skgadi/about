@@ -1,5 +1,29 @@
 <template>
+  <q-btn
+    v-if="editable"
+    flat
+    rounded
+    class="q-px-md"
+    dense
+    icon="mdi-creation-outline"
+    label="Generate all"
+    no-caps
+    color="primary"
+    @click="() => genAnElement('all', 0)"
+  />
+  <br />
   <div class="text-h6">
+    <q-btn
+      v-if="editable"
+      size="sm"
+      flat
+      round
+      dense
+      icon="mdi-creation-outline"
+      color="primary"
+      class="q-mr-md"
+      @click="() => genAnElement('summary', 0)"
+    />
     <text-field
       :html-text="metaInfo?.title || ''"
       :editable="editable"
@@ -67,6 +91,7 @@
       text-when-false="Private"
       @updated-bool="(newValue: boolean) => updateMetaField('isPublic', newValue)"
     />
+    <br />
     <contribution-viewer
       :contributions="metaInfo?.userContribution || []"
       :editable="editable"
@@ -74,7 +99,10 @@
         (newContributions: GSK_USER_CONTRIBUTION[]) =>
           updateMetaField('userContribution', newContributions)
       "
+      @generate-skills="(idx: number) => genAnElement('skills', idx)"
+      @generate-contributions="() => genAnElement('roles', 0)"
     />
+    <br />
     <validation-viewer
       :validations="metaInfo?.validationAuthority || []"
       :editable="editable"
@@ -82,6 +110,7 @@
         (newValidations: GSK_VALIDATION_AUTHORITY[]) =>
           updateMetaField('validationAuthority', newValidations)
       "
+      @generate-validations="() => genAnElement('validation', 0)"
     />
   </template>
 </template>
@@ -129,6 +158,7 @@ import type {
 import type { PropType } from 'vue';
 import { useSocketStore } from 'src/stores/socket-store';
 import type { GSK_CS_META_INFO_UPDATE_A_FIELD } from 'src/services/library/types/data-transfer/meta-info';
+import type { GSK_CS_AI_REQUEST_GEN_DETAILS_FOR_DOC } from 'src/services/library/types/data-transfer/ai';
 
 const socketStore = useSocketStore();
 
@@ -148,5 +178,32 @@ const updateMetaField = (
   };
   //console.log('Emitting meta info update:', message);
   socketStore.emit('GSK_CS_META_INFO_UPDATE_A_FIELD', message);
+};
+
+const genAnElement = (
+  level: GSK_CS_AI_REQUEST_GEN_DETAILS_FOR_DOC['payload']['level'],
+  index: number,
+) => {
+  switch (props.element) {
+    case 'documents':
+      {
+        const payload: GSK_CS_AI_REQUEST_GEN_DETAILS_FOR_DOC = {
+          id: 'GSK_CS_AI_REQUEST_GEN_DETAILS_FOR_DOC',
+          payload: {
+            userId: props.userId,
+            documentId: props.elementId,
+            indexes: [index],
+            level,
+          },
+        };
+        socketStore.emit('GSK_CS_AI_REQUEST_GEN_DETAILS_FOR_DOC', payload);
+      }
+      break;
+    case 'activities':
+    case 'events':
+    case 'timelines':
+      console.log('Skill generation not supported for this element type yet.');
+      break;
+  }
 };
 </script>

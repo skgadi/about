@@ -1,6 +1,6 @@
 <template>
   <div class="row items-center mb-2" v-if="validations.length > 0 || editable">
-    <div>
+    <div class="col-auto">
       <q-btn
         v-if="editable"
         size="sm"
@@ -23,7 +23,25 @@
         "
       />
     </div>
-    <span>Validation</span><span v-if="validations.length !== 1">s</span>
+    <div class="col-auto">
+      <q-btn
+        v-if="editable"
+        size="sm"
+        flat
+        round
+        dense
+        icon="mdi-creation-outline"
+        color="primary"
+        @click="
+          () => {
+            emit('generate-validations');
+          }
+        "
+      />
+    </div>
+    <div class="col q-pl-md">
+      <span>Validation</span><span v-if="validations.length !== 1">s</span>
+    </div>
   </div>
   <q-list dense bordered separator style="border-radius: 16px" v-if="validations.length > 0">
     <validation-element
@@ -62,6 +80,7 @@ defineProps({
 
 const emit = defineEmits<{
   (e: 'updated-validations', validations: GSK_VALIDATION_AUTHORITY[]): void;
+  (e: 'generate-validations'): void;
 }>();
 
 import ValidationElement from 'src/components/Users/ViewEdit/Meta/ValidationElement.vue';

@@ -11,6 +11,17 @@ import { getDatabase } from "../../db/initialization.js";
 import { dbToJsonUserSelf } from "../../services/utils/users/db-json.js";
 import { getSummaryOfAiDoc } from "../../ai/docs.js";
 import { usersRoom } from "../../socket/rooms/users.js";
+import {
+  GSK_DOCUMENT,
+  GSK_META_INFO,
+} from "../../services/library/types/structures/users.js";
+import {
+  generateAllDocumentMetaInfo,
+  generateContributions,
+  generateDocumentMainMetaInfo,
+  generateSkillsAndNotes,
+  generateValidationAuthorities,
+} from "../../ai/docs-gen-meta.js";
 
 export const routines = (io: any, socket: any) => {
   socket.on(
@@ -44,7 +55,7 @@ export const routines = (io: any, socket: any) => {
     "GSK_CS_AI_REQUEST_GEN_DETAILS_FOR_DOC",
     async (inData: GSK_CS_AI_REQUEST_GEN_DETAILS_FOR_DOC) => {
       try {
-        const { documentId, userId } = inData.payload;
+        const { documentId, userId, level, indexes } = inData.payload;
         // check if the user has authorization to manipulate this document
         if (
           !signedInStore.isAuthorizedToEditBasicUserRecords(socket.id, userId)
@@ -87,22 +98,54 @@ export const routines = (io: any, socket: any) => {
           return;
         }
         const userName =
-          userData.displayName || userData.name || userData.email;
+          userData.displayName ||
+          (userData.names.length > 0 ? userData.names[0] : userData.email);
 
-        const aiResponse = await getSummaryOfAiDoc(
-          socket,
-          userId,
-          document,
-          userName
-        );
-        if (!aiResponse) {
-          notifyErrorToClient(
-            socket,
-            "AI Document Details Error",
-            "Failed to generate AI details for the document."
-          );
-          return;
+        //let aiResponse: GSK_META_INFO | null = null;
+
+        switch (level) {
+          case "all":
+            await generateAllDocumentMetaInfo(
+              socket,
+              userId,
+              document,
+              userName,
+              userData.names
+            );
+            break;
+          case "summary":
+            await generateDocumentMainMetaInfo(socket, userId, document);
+            break;
+          case "skills":
+            await generateSkillsAndNotes(
+              socket,
+              userId,
+              document,
+              userName,
+              userData.names,
+              indexes[0] || 0
+            );
+            break;
+          case "validation":
+            await generateValidationAuthorities(
+              socket,
+              userId,
+              document,
+              userName,
+              userData.names
+            );
+            break;
+          case "roles":
+            await generateContributions(
+              socket,
+              userId,
+              document,
+              userName,
+              userData.names
+            );
+            break;
         }
+
         db.transaction(() => {
           // transaction is required to ensure data integrity
           const userDataDB = db
@@ -119,7 +162,7 @@ export const routines = (io: any, socket: any) => {
           if (docIdx < 0) {
             throw new Error("Document not found during update.");
           }
-          userData.details.documents[docIdx].metaInfo = aiResponse;
+          userData.details.documents[docIdx].metaInfo = document.metaInfo;
 
           // Update the meta info of the document in the database
           db.prepare("UPDATE users SET details = ? WHERE id = ?").run(

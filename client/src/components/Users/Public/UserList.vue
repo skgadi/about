@@ -30,7 +30,7 @@ const filteredUsers = computed(() => {
       user?.displayName?.toLowerCase().includes(filter.value.toLowerCase()) ||
       user?.userName?.toLowerCase().includes(filter.value.toLowerCase()) ||
       user?.id?.toLowerCase().includes(filter.value.toLowerCase()) ||
-      user?.name?.toLowerCase().includes(filter.value.toLowerCase())
+      user?.names?.some((name) => name.toLowerCase().includes(filter.value.toLowerCase()))
     );
   });
 });

@@ -22,7 +22,7 @@ export const createTables = () => {
       id TEXT PRIMARY KEY, -- uuid
       userName TEXT UNIQUE COLLATE NOCASE COLLATE RTRIM,
       avatarUrl TEXT,
-      name TEXT,
+      names TEXT NOT NULL DEFAULT '[]',
       displayName TEXT ,
       roles TEXT NOT NULL DEFAULT '[]',
       details TEXT NOT NULL DEFAULT '{"metaInfo": {}}',

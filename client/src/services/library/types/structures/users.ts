@@ -216,7 +216,7 @@ export interface GSK_USER_CONTRIBUTION {
 export interface GSK_VALIDATION_AUTHORITY {
   id?: string;
   name: string;
-  authorityType?: 'Institution' | 'Company' | 'Individual';
+  authorityType?: 'Institution' | 'Organization' | 'Individual';
   validationDate?: string;
   authorityUrl?: string;
   notes?: string;
@@ -406,7 +406,7 @@ export interface GSK_USER_PUBLIC_SUMMARY {
   id: string;
   userName?: string;
   avatarUrl?: string;
-  name?: string;
+  names: string[];
   displayName?: string;
 }
 
@@ -576,7 +576,7 @@ export interface GSK_USER_DB {
   id: string;
   userName?: string;
   avatarUrl?: string;
-  name?: string;
+  names: string;
   displayName?: string;
   roles: string;
   details: string;

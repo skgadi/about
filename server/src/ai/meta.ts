@@ -84,6 +84,49 @@ class metaFormats {
           `List of skills that ${userName} has applied in the role of ${role} for the content. Include both soft and technical skills. List elemental skills that contributed to successful execution of tasks may it be communication, technical expertise, or creative problem-solving.`
         ),
     });
+
+  static MetaListSkillsWithNotes = (userName: string, role: string) =>
+    z.object({
+      skills: z
+        .array(this.metaSingeSkill(userName))
+        .describe(
+          `List of skills that ${userName} has applied in the role of ${role} for the content. Include both soft and technical skills. List elemental skills that contributed to successful execution of tasks may it be communication, technical expertise, or creative problem-solving.`
+        ),
+      notes: z
+        .string()
+        .describe(
+          `Concise notes on ${userName}'s contributions in the role of ${role} for the content. Highlight key achievements, challenges overcome, and the impact of their work.`
+        ),
+    });
+
+  static metaValidationAuthority = z.object({
+    name: z
+      .string()
+      .describe("Name of the authority responsible for validation."),
+    authorityType: z
+      .enum(["Institution", "Organization", "Individual"])
+      .optional()
+      .describe("Type of the authority responsible for validation."),
+    validationDate: z
+      .string()
+      .optional()
+      .describe(
+        "Date when the validation was performed. Should be in ISO 8601 format."
+      ),
+    authorityUrl: z
+      .string()
+      .optional()
+      .describe("URL of the authority responsible for validation. Optional."),
+    notes: z
+      .string()
+      .optional()
+      .describe("Additional notes regarding the validation. Optional."),
+  });
+  static metaValidationAuthorities = z.object({
+    authorities: z
+      .array(this.metaValidationAuthority)
+      .describe("List of authorities responsible for validating the content."),
+  });
 }
 
 export default metaFormats;

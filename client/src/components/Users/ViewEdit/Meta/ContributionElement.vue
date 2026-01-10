@@ -99,16 +99,28 @@
       </q-item-label>
     </q-item-section>
     <q-item-section side top>
-      <q-btn
-        v-if="editable"
-        size="sm"
-        flat
-        round
-        dense
-        icon="mdi-trash-can-outline"
-        color="negative"
-        @click="() => emit('deleted-contribution')"
-      />
+      <div>
+        <q-btn
+          v-if="editable"
+          size="sm"
+          flat
+          round
+          dense
+          icon="mdi-creation-outline"
+          color="primary"
+          @click="() => emit('generate-skills')"
+        />
+        <q-btn
+          v-if="editable"
+          size="sm"
+          flat
+          round
+          dense
+          icon="mdi-trash-can-outline"
+          color="negative"
+          @click="() => emit('deleted-contribution')"
+        />
+      </div>
     </q-item-section>
   </q-item>
 </template>
@@ -128,6 +140,7 @@ defineProps({
 const emit = defineEmits<{
   (e: 'updated-contribution', updatedContribution: GSK_USER_CONTRIBUTION): void;
   (e: 'deleted-contribution'): void;
+  (e: 'generate-skills'): void;
 }>();
 
 import TextField from 'src/components/Users/ViewEdit/Elements/TextField.vue';

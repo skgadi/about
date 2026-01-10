@@ -1,6 +1,6 @@
 <template>
   <div class="row items-center mb-2" v-if="contributions.length > 0 || editable">
-    <div>
+    <div class="col-auto">
       <q-btn
         v-if="editable"
         size="sm"
@@ -23,7 +23,25 @@
         "
       />
     </div>
-    <span>Contribution</span><span v-if="contributions.length !== 1">s</span>
+    <div class="col-auto">
+      <q-btn
+        v-if="editable"
+        size="sm"
+        flat
+        round
+        dense
+        icon="mdi-creation-outline"
+        color="primary"
+        @click="
+          () => {
+            emit('generate-contributions');
+          }
+        "
+      />
+    </div>
+    <div class="col q-pl-md">
+      <span>Contribution</span><span v-if="contributions.length !== 1">s</span>
+    </div>
   </div>
   <q-list dense bordered separator style="border-radius: 16px" v-if="contributions.length > 0">
     <contribution-element
@@ -44,6 +62,7 @@
           emit('updated-contributions', newContributions);
         }
       "
+      @generate-skills="() => emit('generate-skills', index)"
     />
   </q-list>
 </template>
@@ -62,6 +81,8 @@ defineProps({
 
 const emit = defineEmits<{
   (e: 'updated-contributions', newContributions: GSK_USER_CONTRIBUTION[]): void;
+  (e: 'generate-skills', idx: number): void;
+  (e: 'generate-contributions'): void;
 }>();
 
 import ContributionElement from 'src/components/Users/ViewEdit/Meta/ContributionElement.vue';

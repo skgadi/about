@@ -5,11 +5,12 @@
         <profile-pic :editable="editable" size="128px" />
         <div class="text-h6 q-mt-sm">
           <root-text-field
-            :html-text="selectedUser.displayName || selectedUser.name || 'Unnamed User'"
+            :html-text="selectedUser.displayName || selectedUser.names[0] || 'Unnamed User'"
             :editable="editable"
             field-to-update="displayName"
             :user-id="selectedUser.id"
             this-class="text-h6"
+            hover-text="Edit display name"
           />
         </div>
         <div class="text-caption">
@@ -20,8 +21,14 @@
             field-to-update="userName"
             :user-id="selectedUser.id"
             this-class="text-caption"
+            hover-text="Edit username"
           />
         </div>
+        <names-list
+          :names="selectedUser.names || []"
+          :editable="editable"
+          :user-id="selectedUser.id"
+        />
         <div class="text-caption" v-if="(selectedUser as GSK_USER_SELF_DETAILS)?.email">
           {{ (selectedUser as GSK_USER_SELF_DETAILS)?.email || 'no-email' }}
         </div>
@@ -60,6 +67,7 @@ const props = defineProps({
 });
 
 import DocumentsFrame from 'src/components/Users/ViewEdit/Documents/DocumentsFrame.vue';
+import NamesList from 'src/components/Users/ViewEdit/Elements/NamesList.vue';
 import DisplayRoles from 'src/components/Users/ViewEdit/Elements/DisplayRoles.vue';
 import RootTextField from 'src/components/Users/ViewEdit/Elements/RootTextField.vue';
 import ProfilePic from 'src/components/Users/ViewEdit/Elements/ProfilePic.vue';

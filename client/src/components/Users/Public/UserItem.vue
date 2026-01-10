@@ -4,7 +4,7 @@
       <profile-pic :user-id="user.id" :size="'md'" />
     </q-item-section>
     <q-item-section>
-      <q-item-label>{{ user.displayName || user.name || 'Unnamed User' }}</q-item-label>
+      <q-item-label>{{ user.displayName || user.names[0] || 'Unnamed User' }}</q-item-label>
       <q-item-label caption lines="3">{{ user.userName }}</q-item-label>
     </q-item-section>
   </q-item>

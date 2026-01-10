@@ -16,5 +16,7 @@ export interface GSK_CS_AI_REQUEST_GEN_DETAILS_FOR_DOC {
   payload: {
     documentId: string;
     userId: string;
+    level: 'all' | 'summary' | 'roles' | 'skills' | 'validation';
+    indexes: number[];
   };
 }

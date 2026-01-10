@@ -91,7 +91,7 @@ export const routines = (io: any, socket: any) => {
         socket,
         "Authentication Successful",
         `Welcome back, ${
-          userSelfDetails.displayName || userSelfDetails.name || "User"
+          userSelfDetails.displayName || userSelfDetails.names[0] || "User"
         }!`
       );
     } catch (error) {
